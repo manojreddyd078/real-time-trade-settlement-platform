@@ -1,0 +1,52 @@
+# Java and Maven
+backend/target/
+*.class
+*.jar
+*.war
+*.ear
+*.hprof
+.classpath
+.project
+.settings/
+
+# Node and Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE and operating system
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local configuration, secrets, and runtime files
+*.log
+.env.*
+.env
+.env.local
+!.env.example
+*.pid
+*.pid.lock
+
+# Test and coverage output
+coverage/
+.nyc_output/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+
+# Local data files
+spark/data/*.csv
+spark/data/*.json
+spark/data/*.parquet
+!spark/data/.gitkeep

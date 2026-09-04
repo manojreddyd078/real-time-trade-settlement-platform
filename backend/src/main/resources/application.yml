@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: trade-settlement-backend
+
+server:
+  port: 8080
