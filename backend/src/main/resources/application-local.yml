@@ -2,6 +2,12 @@ spring:
   config:
     activate:
       on-profile: local
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/trade_settlement}
+    username: ${DATABASE_USERNAME:trade_user}
+    password: ${DATABASE_PASSWORD:trade_password}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 
 logging:
   level:

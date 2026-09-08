@@ -47,3 +47,17 @@ npm run build
 
 See [docs/architecture/README.md](docs/architecture/README.md) for the system design
 and the intended responsibilities of each package.
+
+## Docker local environment
+
+The complete local environment includes PostgreSQL, Kafka, the backend, and the
+frontend:
+
+```bash
+docker compose up --build -d
+docker compose ps
+```
+
+Open `http://localhost:5173` after all services become healthy. Detailed profile,
+configuration, verification, troubleshooting, and shutdown instructions are in
+[docs/deployment/local-development.md](docs/deployment/local-development.md).

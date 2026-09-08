@@ -1,5 +1,6 @@
 # Java and Maven
 backend/target/
+backend/.m2/
 *.class
 *.jar
 *.war
@@ -35,6 +36,7 @@ Desktop.ini
 .env
 .env.local
 !.env.example
+!frontend/.env.development
 *.pid
 *.pid.lock
 

@@ -2,10 +2,12 @@
 
 ## Overview
 
-The platform starts as a two-tier application:
+The platform starts as a two-tier application backed by local infrastructure:
 
 1. A React single-page application presents settlement information to users.
 2. A Spring Boot REST API exposes backend capabilities under `/api`.
+3. PostgreSQL provides durable relational storage.
+4. Kafka provides asynchronous trade and settlement event streams.
 
 During local development, Vite serves the frontend on port `5173` and proxies
 requests beginning with `/api` to Spring Boot on port `8080`. This keeps browser
@@ -50,4 +52,7 @@ trade capture, validation, enrichment, Kafka processing, and settlement APIs.
 ## Future deployment
 
 The repository reserves infrastructure directories for Docker, Kafka, and Azure.
-No production infrastructure is configured in this initial application bootstrap.
+Docker Compose provides the complete local topology. The frontend nginx container
+proxies `/api` to the backend, while the backend connects to PostgreSQL and Kafka
+over the private Compose network. Production infrastructure remains intentionally
+separate from this local setup.
