@@ -7,8 +7,14 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
+        default_schema: settlement
         jdbc:
           time_zone: UTC
+  flyway:
+    enabled: true
+    default-schema: settlement
+    schemas: settlement
+    locations: classpath:db/migration
   kafka:
     consumer:
       group-id: trade-settlement-service
