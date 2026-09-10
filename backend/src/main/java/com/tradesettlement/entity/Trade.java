@@ -91,7 +91,7 @@ public class Trade {
     @Column(name = "updated_by", nullable = false, length = 100)
     private String updatedBy;
 
-    protected Trade() {
+    public Trade() {
     }
 
     public UUID getId() {
