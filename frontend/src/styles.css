@@ -7,7 +7,7 @@ button, input { font: inherit; }
 .brand { display: flex; align-items: center; gap: 11px; padding: 0 10px 34px; font-size: 1.05rem; letter-spacing: .02em; }
 .brand > span { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #10231d; background: #b9e96e; font-size: .76rem; font-weight: 800; }
 .sidebar nav { display: grid; gap: 5px; }
-.nav-item { color: #9eb0aa; text-decoration: none; padding: 11px 13px; border-radius: 8px; font-size: .9rem; font-weight: 600; }
+.nav-item { width: 100%; border: 0; color: #9eb0aa; background: transparent; text-decoration: none; text-align: left; padding: 11px 13px; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; }
 .nav-item:hover, .nav-item--active { color: #fff; background: #1d372f; }
 .count { float: right; min-width: 22px; padding: 2px 6px; border-radius: 20px; text-align: center; color: #f6b9a8; background: #5b2c26; font-size: .72rem; }
 .sidebar-footer { margin-top: auto; padding: 17px 10px 2px; border-top: 1px solid #2a4039; display: flex; align-items: center; gap: 10px; }
@@ -34,6 +34,7 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: -.02em; }
 .panel { margin-top: 22px; border: 1px solid #dfe5e1; border-radius: 11px; background: #fff; box-shadow: 0 4px 16px rgba(23, 35, 31, .035); overflow: hidden; }
 .panel-heading { display: flex; justify-content: space-between; align-items: center; padding: 21px 22px; border-bottom: 1px solid #e7ebe8; }
 .panel-heading a { color: #247151; font-size: .78rem; font-weight: 700; text-decoration: none; }
+.link-button, .back-link { border: 0; padding: 0; color: #247151; background: transparent; font-size: .78rem; font-weight: 700; cursor: pointer; }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; white-space: nowrap; }
 th { padding: 12px 18px; color: #829089; background: #fafbfa; font-size: .66rem; letter-spacing: .06em; text-align: left; text-transform: uppercase; }
@@ -49,6 +50,34 @@ td { padding: 16px 18px; border-top: 1px solid #edf0ee; font-size: .78rem; }
 .indicator { width: 8px; height: 8px; border-radius: 50%; background: #d79835; flex: none; }
 .indicator--up { background: #60bd83; box-shadow: 0 0 0 3px rgba(96, 189, 131, .13); }
 .indicator--unavailable { background: #db6555; }
-@media (max-width: 1050px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+.submission-page { max-width: 980px; padding: 34px 0 50px; }
+.back-link { margin-bottom: 27px; }
+.page-heading h2 { margin: 4px 0 8px; font-size: 1.55rem; }
+.page-heading > p:last-child { margin: 0 0 25px; color: #74817c; font-size: .86rem; }
+.trade-form { border: 1px solid #dfe5e1; border-radius: 12px; background: #fff; box-shadow: 0 4px 16px rgba(23, 35, 31, .035); overflow: hidden; }
+.form-section { display: grid; grid-template-columns: 200px 1fr; gap: 28px; padding: 26px; border-bottom: 1px solid #e7ebe8; }
+.form-section-title { display: flex; align-items: flex-start; gap: 10px; }
+.form-section-title > span { width: 25px; height: 25px; display: grid; place-items: center; flex: none; border-radius: 50%; color: #176b4c; background: #e4f2eb; font-size: .65rem; font-weight: 800; }
+.form-section-title h3 { margin: 2px 0 5px; font-size: .9rem; }
+.form-section-title p { margin: 0; color: #819089; font-size: .7rem; line-height: 1.45; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.form-grid--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.form-field { display: flex; flex-direction: column; gap: 7px; color: #43524c; font-size: .72rem; font-weight: 700; }
+.form-field input, .form-field select { min-width: 0; width: 100%; height: 40px; border: 1px solid #ccd6d1; border-radius: 7px; padding: 0 11px; color: #1d2b26; background: #fff; outline: none; font: inherit; font-weight: 500; }
+.form-field input:focus, .form-field select:focus { border-color: #2b8060; box-shadow: 0 0 0 3px rgba(43, 128, 96, .12); }
+.form-field input[aria-invalid="true"] { border-color: #c65742; }
+.field-error { color: #b34632; font-size: .66rem; font-weight: 600; }
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 19px 26px; background: #fafbfa; }
+.form-actions button { min-width: 124px; border: 0; border-radius: 7px; padding: 11px 16px; color: #fff; background: #176b4c; font-weight: 750; cursor: pointer; }
+.form-actions .button-secondary { border: 1px solid #ccd6d1; color: #53615c; background: #fff; }
+.form-actions button:disabled { opacity: .62; cursor: wait; }
+.spinner { display: inline-block; width: 12px; height: 12px; margin-right: 7px; border: 2px solid rgba(255,255,255,.45); border-top-color: #fff; border-radius: 50%; vertical-align: -2px; animation: spin .7s linear infinite; }
+.notice { display: grid; gap: 5px; margin: 22px 26px 0; padding: 15px 17px; border-radius: 8px; font-size: .78rem; }
+.notice--success { color: #215c43; background: #e3f3ea; border: 1px solid #bbdfca; }
+.notice--error { color: #8a3828; background: #fae8e3; border: 1px solid #efc7bd; }
+.notice code { width: fit-content; padding: 4px 7px; border-radius: 4px; background: rgba(255,255,255,.55); user-select: all; }
+.notice small { opacity: .78; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 1050px) { .metrics { grid-template-columns: repeat(2, 1fr); } .form-section { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .app-shell { display: block; } .sidebar { position: static; height: auto; padding: 16px; } .sidebar nav { display: flex; overflow-x: auto; } .brand { padding-bottom: 16px; } .sidebar-footer { display: none; } .content { padding: 0 18px 36px; } .operator div { display: none; } .intro { align-items: flex-start; gap: 18px; } }
-@media (max-width: 520px) { .metrics { grid-template-columns: 1fr; } .intro { display: grid; } .intro button { width: fit-content; } }
+@media (max-width: 520px) { .metrics, .form-grid, .form-grid--three { grid-template-columns: 1fr; } .intro { display: grid; } .intro button { width: fit-content; } .form-actions { flex-direction: column-reverse; } .form-actions button { width: 100%; } }

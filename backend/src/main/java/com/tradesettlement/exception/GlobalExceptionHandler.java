@@ -13,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -31,6 +32,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TradeValidationException.class)
     ResponseEntity<ApiErrorResponse> handleTradeValidation(TradeValidationException exception, HttpServletRequest request) {
         return response(HttpStatus.BAD_REQUEST, "TRADE_VALIDATION_FAILED", exception.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    ResponseEntity<ApiErrorResponse> handleUnreadableRequest(HttpMessageNotReadableException exception, HttpServletRequest request) {
+        return response(HttpStatus.BAD_REQUEST, "MALFORMED_REQUEST", "Request body is malformed or contains an unsupported value", request, null);
     }
 
     @ExceptionHandler(DuplicateTradeException.class)

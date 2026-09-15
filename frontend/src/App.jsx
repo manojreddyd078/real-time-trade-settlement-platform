@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import MetricCard from './components/MetricCard.jsx'
 import TradeTable from './components/TradeTable.jsx'
+import TradeSubmissionPage from './pages/TradeSubmissionPage.jsx'
 import { getBackendStatus } from './services/api.js'
 import { TradeStatus, TradeType } from './types/trade.js'
 
@@ -11,39 +12,19 @@ const sampleTrades = [
   { id: '4', tradeReference: 'TRD-2026-09418', tradeType: TradeType.SELL, status: TradeStatus.SETTLED, instrumentCode: 'MSFT', counterparty: 'Harbor Street Bank', quantity: 8500, price: 501.34, currencyCode: 'USD', settlementDate: 'Sep 09, 2026' }
 ]
 
+function Overview({ onCapture }) {
+  return <><section className="intro"><div><h2>Today’s settlement overview</h2><p>Monitor trade flow, settlement readiness, and exceptions.</p></div><button type="button" onClick={onCapture}>+ Capture trade</button></section><section className="metrics" aria-label="Settlement metrics"><MetricCard label="Trades today" value="1,284" detail="↑ 8.2% from yesterday" tone="positive" /><MetricCard label="Pending settlement" value="426" detail="$184.6M gross value" /><MetricCard label="Settled today" value="851" detail="66.3% completion" tone="positive" /><MetricCard label="Exceptions" value="7" detail="3 require attention" tone="warning" /></section><section className="panel" id="trades"><div className="panel-heading"><div><h2>Recent trades</h2><p>Latest activity across the settlement lifecycle</p></div><button className="link-button" type="button" onClick={onCapture}>Submit trade →</button></div><TradeTable trades={sampleTrades} /></section></>
+}
+
 function App() {
   const [backend, setBackend] = useState({ state: 'checking', service: '' })
+  const [page, setPage] = useState('overview')
 
   useEffect(() => {
-    getBackendStatus()
-      .then((data) => setBackend({ state: data.status, service: data.service }))
-      .catch(() => setBackend({ state: 'UNAVAILABLE', service: 'trade-settlement-backend' }))
+    getBackendStatus().then((data) => setBackend({ state: data.status, service: data.service })).catch(() => setBackend({ state: 'UNAVAILABLE', service: 'trade-settlement-backend' }))
   }, [])
 
-  return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand"><span>TS</span><strong>Clearline</strong></div>
-        <nav aria-label="Main navigation">
-          <a className="nav-item nav-item--active" href="#overview">Overview</a><a className="nav-item" href="#trades">Trades</a>
-          <a className="nav-item" href="#settlements">Settlements</a><a className="nav-item" href="#exceptions">Exceptions <span className="count">3</span></a>
-          <a className="nav-item" href="#reference">Reference data</a>
-        </nav>
-        <div className="sidebar-footer"><span className={`indicator indicator--${backend.state.toLowerCase()}`} /><div><strong>System {backend.state}</strong><small>{backend.service || 'Connecting…'}</small></div></div>
-      </aside>
-      <main className="content" id="overview">
-        <header className="topbar"><div><p className="eyebrow">Settlement operations</p><h1>Good morning, Alex</h1></div><div className="operator"><span>AR</span><div><strong>Alex Rivera</strong><small>Operations analyst</small></div></div></header>
-        <section className="intro"><div><h2>Today’s settlement overview</h2><p>Monitor trade flow, settlement readiness, and exceptions.</p></div><button type="button">+ Capture trade</button></section>
-        <section className="metrics" aria-label="Settlement metrics">
-          <MetricCard label="Trades today" value="1,284" detail="↑ 8.2% from yesterday" tone="positive" />
-          <MetricCard label="Pending settlement" value="426" detail="$184.6M gross value" />
-          <MetricCard label="Settled today" value="851" detail="66.3% completion" tone="positive" />
-          <MetricCard label="Exceptions" value="7" detail="3 require attention" tone="warning" />
-        </section>
-        <section className="panel" id="trades"><div className="panel-heading"><div><h2>Recent trades</h2><p>Latest activity across the settlement lifecycle</p></div><a href="#all-trades">View all trades →</a></div><TradeTable trades={sampleTrades} /></section>
-      </main>
-    </div>
-  )
+  return <div className="app-shell"><aside className="sidebar"><div className="brand"><span>TS</span><strong>Clearline</strong></div><nav aria-label="Main navigation"><button className={`nav-item ${page === 'overview' ? 'nav-item--active' : ''}`} onClick={() => setPage('overview')}>Overview</button><button className={`nav-item ${page === 'submit' ? 'nav-item--active' : ''}`} onClick={() => setPage('submit')}>Submit trade</button><button className="nav-item">Settlements</button><button className="nav-item">Exceptions <span className="count">3</span></button><button className="nav-item">Reference data</button></nav><div className="sidebar-footer"><span className={`indicator indicator--${backend.state.toLowerCase()}`} /><div><strong>System {backend.state}</strong><small>{backend.service || 'Connecting…'}</small></div></div></aside><main className="content"><header className="topbar"><div><p className="eyebrow">Settlement operations</p><h1>{page === 'submit' ? 'Trade capture' : 'Good morning, Alex'}</h1></div><div className="operator"><span>AR</span><div><strong>Alex Rivera</strong><small>Operations analyst</small></div></div></header>{page === 'submit' ? <TradeSubmissionPage onBack={() => setPage('overview')} /> : <Overview onCapture={() => setPage('submit')} />}</main></div>
 }
 
 export default App

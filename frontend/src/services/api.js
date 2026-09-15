@@ -8,3 +8,35 @@ export async function getBackendStatus() {
 
   return response.json()
 }
+
+export class ApiError extends Error {
+  constructor(message, { code, fieldErrors, requestId, status } = {}) {
+    super(message)
+    this.name = 'ApiError'
+    this.code = code
+    this.fieldErrors = fieldErrors || {}
+    this.requestId = requestId
+    this.status = status
+  }
+}
+
+export async function submitTrade(trade) {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
+  const response = await fetch(`${apiBaseUrl}/api/trades`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(trade)
+  })
+  const body = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    throw new ApiError(body?.message || `Trade submission failed with HTTP ${response.status}`, {
+      code: body?.code,
+      fieldErrors: body?.fieldErrors,
+      requestId: body?.requestId,
+      status: response.status
+    })
+  }
+
+  return body
+}

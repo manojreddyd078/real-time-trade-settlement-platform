@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.tradesettlement.dto.TradeSubmissionResponse;
 import com.tradesettlement.entity.TradeStatus;
+import com.tradesettlement.exception.DuplicateTradeException;
 import com.tradesettlement.service.TradeSubmissionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,6 +55,33 @@ class TradeControllerTest {
                 .andExpect(jsonPath("$.code").value("REQUEST_VALIDATION_FAILED"))
                 .andExpect(jsonPath("$.fieldErrors.tradeReference").exists())
                 .andExpect(jsonPath("$.requestId").isNotEmpty());
+    }
+
+    @Test
+    void returnsConflictForDuplicateReference() throws Exception {
+        when(tradeSubmissionService.submit(any())).thenThrow(new DuplicateTradeException("TRD-2026-10001"));
+
+        mockMvc.perform(post("/api/trades").contentType(MediaType.APPLICATION_JSON).content(validRequest()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("DUPLICATE_TRADE"))
+                .andExpect(jsonPath("$.message").value("Trade reference already exists: TRD-2026-10001"));
+    }
+
+    @Test
+    void rejectsUnsupportedTradeTypeAsBadRequest() throws Exception {
+        mockMvc.perform(post("/api/trades").contentType(MediaType.APPLICATION_JSON)
+                        .content(validRequest().replace("\"BUY\"", "\"SHORT\"")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("MALFORMED_REQUEST"));
+    }
+
+    @Test
+    void permitsConfiguredFrontendOrigin() throws Exception {
+        mockMvc.perform(options("/api/trades")
+                        .header("Origin", "http://localhost:5173")
+                        .header("Access-Control-Request-Method", "POST"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5173"));
     }
 
     private String validRequest() {
