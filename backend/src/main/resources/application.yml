@@ -17,13 +17,23 @@ spring:
     locations: classpath:db/migration
   kafka:
     consumer:
-      group-id: trade-settlement-service
       auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: com.tradesettlement.kafka
+        spring.json.use.type.headers: true
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: true
+    listener:
+      ack-mode: record
+      missing-topics-fatal: false
 
 server:
   port: 8080
@@ -47,3 +57,17 @@ springdoc:
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  kafka:
+    topics:
+      trade-events: trade-events
+      trade-validation: trade-validation
+      trade-enrichment: trade-enrichment
+      trade-settlement: trade-settlement
+      trade-status: trade-status
+      trade-dlq: trade-dlq
+    consumer-groups:
+      validation: trade-validation-service
+      enrichment: trade-enrichment-service
+      settlement: trade-settlement-service
+      status: trade-status-service
+      dlq: trade-dlq-monitor

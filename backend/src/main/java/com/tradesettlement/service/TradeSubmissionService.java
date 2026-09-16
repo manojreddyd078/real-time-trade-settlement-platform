@@ -1,16 +1,22 @@
 package com.tradesettlement.service;
 
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
 import com.tradesettlement.dto.TradeSubmissionRequest;
 import com.tradesettlement.dto.TradeSubmissionResponse;
 import com.tradesettlement.entity.Trade;
 import com.tradesettlement.entity.TradeStatus;
 import com.tradesettlement.exception.DuplicateTradeException;
+import com.tradesettlement.kafka.TradeEventType;
+import com.tradesettlement.kafka.TradeLifecycleEvent;
 import com.tradesettlement.repository.TradeRepository;
 import com.tradesettlement.validation.TradeSubmissionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -20,10 +26,13 @@ public class TradeSubmissionService {
 
     private final TradeRepository tradeRepository;
     private final TradeSubmissionValidator validator;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public TradeSubmissionService(TradeRepository tradeRepository, TradeSubmissionValidator validator) {
+    public TradeSubmissionService(TradeRepository tradeRepository, TradeSubmissionValidator validator,
+                                  ApplicationEventPublisher eventPublisher) {
         this.tradeRepository = tradeRepository;
         this.validator = validator;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -39,6 +48,9 @@ public class TradeSubmissionService {
             Trade trade = toEntity(request);
             Trade savedTrade = tradeRepository.saveAndFlush(trade);
             MDC.put("tradeId", savedTrade.getId().toString());
+            eventPublisher.publishEvent(new TradeLifecycleEvent(
+                    UUID.randomUUID(), savedTrade.getId(), savedTrade.getTradeReference(), savedTrade.getTradeType(),
+                    savedTrade.getStatus(), TradeEventType.TRADE_SUBMITTED, OffsetDateTime.now(), MDC.get("requestId")));
             log.info("trade_submission_completed");
             return TradeSubmissionResponse.from(savedTrade);
         } catch (RuntimeException exception) {
