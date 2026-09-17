@@ -12,23 +12,23 @@ public class TradeEventConsumers {
     private static final Logger log = LoggerFactory.getLogger(TradeEventConsumers.class);
 
     @KafkaListener(topics = "${app.kafka.topics.trade-events}", groupId = "${app.kafka.consumer-groups.validation}")
-    public void consumeForValidation(TradeLifecycleEvent event) {
+    public void consumeForValidation(TradeEvent event) {
         log.info("trade_event_received stage=validation eventId={} tradeId={}", event.getEventId(), event.getTradeId());
     }
 
     @KafkaListener(topics = "${app.kafka.topics.trade-validation}", groupId = "${app.kafka.consumer-groups.enrichment}")
-    public void consumeForEnrichment(TradeLifecycleEvent event) {
+    public void consumeForEnrichment(TradeEvent event) {
         log.info("trade_event_received stage=enrichment eventId={} tradeId={}", event.getEventId(), event.getTradeId());
     }
 
     @KafkaListener(topics = "${app.kafka.topics.trade-enrichment}", groupId = "${app.kafka.consumer-groups.settlement}")
-    public void consumeForSettlement(TradeLifecycleEvent event) {
+    public void consumeForSettlement(TradeEvent event) {
         log.info("trade_event_received stage=settlement eventId={} tradeId={}", event.getEventId(), event.getTradeId());
     }
 
     @KafkaListener(topics = {"${app.kafka.topics.trade-settlement}", "${app.kafka.topics.trade-status}"},
             groupId = "${app.kafka.consumer-groups.status}")
-    public void consumeForStatus(TradeLifecycleEvent event) {
+    public void consumeForStatus(TradeEvent event) {
         log.info("trade_event_received stage=status eventId={} tradeId={}", event.getEventId(), event.getTradeId());
     }
 

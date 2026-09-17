@@ -32,13 +32,13 @@ public class TradeEventProducer {
         this.statusTopic = statusTopic;
     }
 
-    public void publishSubmitted(TradeLifecycleEvent event) { send(tradeEventsTopic, event); }
-    public void publishValidation(TradeLifecycleEvent event) { send(validationTopic, event); }
-    public void publishEnrichment(TradeLifecycleEvent event) { send(enrichmentTopic, event); }
-    public void publishSettlement(TradeLifecycleEvent event) { send(settlementTopic, event); }
-    public void publishStatus(TradeLifecycleEvent event) { send(statusTopic, event); }
+    public void publishAccepted(TradeEvent event) { send(tradeEventsTopic, event); }
+    public void publishValidation(TradeEvent event) { send(validationTopic, event); }
+    public void publishEnrichment(TradeEvent event) { send(enrichmentTopic, event); }
+    public void publishSettlement(TradeEvent event) { send(settlementTopic, event); }
+    public void publishStatus(TradeEvent event) { send(statusTopic, event); }
 
-    private void send(String topic, TradeLifecycleEvent event) {
+    private void send(String topic, TradeEvent event) {
         try {
             kafkaTemplate.send(topic, event.getTradeId().toString(), event).addCallback(
                     result -> log.info("kafka_event_published topic={} eventId={} tradeId={}", topic, event.getEventId(), event.getTradeId()),

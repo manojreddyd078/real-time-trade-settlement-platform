@@ -14,9 +14,9 @@ public class TradeSubmittedKafkaPublisher {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void publishAfterCommit(TradeLifecycleEvent event) {
-        if (event.getEventType() == TradeEventType.TRADE_SUBMITTED) {
-            producer.publishSubmitted(event);
+    public void publishAfterCommit(TradeEvent event) {
+        if (event.getEventType() == TradeEventType.TRADE_ACCEPTED) {
+            producer.publishAccepted(event);
         }
     }
 }

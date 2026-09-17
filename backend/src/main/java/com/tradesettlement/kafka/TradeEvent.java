@@ -1,12 +1,14 @@
 package com.tradesettlement.kafka;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
+import com.tradesettlement.entity.Trade;
 import com.tradesettlement.entity.TradeStatus;
 import com.tradesettlement.entity.TradeType;
 
-public class TradeLifecycleEvent {
+public class TradeEvent {
 
     private UUID eventId;
     private UUID tradeId;
@@ -17,12 +19,12 @@ public class TradeLifecycleEvent {
     private OffsetDateTime occurredAt;
     private String correlationId;
 
-    public TradeLifecycleEvent() {
+    public TradeEvent() {
     }
 
-    public TradeLifecycleEvent(UUID eventId, UUID tradeId, String tradeReference, TradeType tradeType,
-                               TradeStatus status, TradeEventType eventType, OffsetDateTime occurredAt,
-                               String correlationId) {
+    public TradeEvent(UUID eventId, UUID tradeId, String tradeReference, TradeType tradeType,
+                      TradeStatus status, TradeEventType eventType, OffsetDateTime occurredAt,
+                      String correlationId) {
         this.eventId = eventId;
         this.tradeId = tradeId;
         this.tradeReference = tradeReference;
@@ -31,6 +33,13 @@ public class TradeLifecycleEvent {
         this.eventType = eventType;
         this.occurredAt = occurredAt;
         this.correlationId = correlationId;
+    }
+
+    public static TradeEvent accepted(Trade trade, String correlationId) {
+        return new TradeEvent(
+                UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
+                trade.getStatus(), TradeEventType.TRADE_ACCEPTED, OffsetDateTime.now(ZoneOffset.UTC),
+                correlationId);
     }
 
     public UUID getEventId() { return eventId; }

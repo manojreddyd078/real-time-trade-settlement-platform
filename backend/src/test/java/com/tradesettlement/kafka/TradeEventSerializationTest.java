@@ -12,27 +12,30 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TradeLifecycleEventSerializationTest {
+class TradeEventSerializationTest {
 
     @Test
     void roundTripsTypedJsonEvent() {
-        TradeLifecycleEvent source = new TradeLifecycleEvent(
-                UUID.randomUUID(), UUID.randomUUID(), "TRD-2026-12001", TradeType.BUY,
-                TradeStatus.RECEIVED, TradeEventType.TRADE_SUBMITTED,
-                OffsetDateTime.parse("2026-09-16T14:00:00Z"), "request-123");
+        TradeEvent source = event(TradeEventType.TRADE_ACCEPTED);
         RecordHeaders headers = new RecordHeaders();
-        JsonSerializer<TradeLifecycleEvent> serializer = new JsonSerializer<>();
-        JsonDeserializer<TradeLifecycleEvent> deserializer = new JsonDeserializer<>(TradeLifecycleEvent.class);
+        JsonSerializer<TradeEvent> serializer = new JsonSerializer<>();
+        JsonDeserializer<TradeEvent> deserializer = new JsonDeserializer<>(TradeEvent.class);
         deserializer.addTrustedPackages("com.tradesettlement.kafka");
 
         byte[] payload = serializer.serialize("trade-events", headers, source);
-        TradeLifecycleEvent result = deserializer.deserialize("trade-events", headers, payload);
+        TradeEvent result = deserializer.deserialize("trade-events", headers, payload);
 
         assertEquals(source.getEventId(), result.getEventId());
         assertEquals(source.getTradeId(), result.getTradeId());
-        assertEquals(source.getTradeReference(), result.getTradeReference());
-        assertEquals(TradeEventType.TRADE_SUBMITTED, result.getEventType());
+        assertEquals(TradeEventType.TRADE_ACCEPTED, result.getEventType());
         assertEquals(TradeStatus.RECEIVED, result.getStatus());
         assertEquals("request-123", result.getCorrelationId());
+        assertEquals(OffsetDateTime.parse("2026-09-17T14:00:00Z"), result.getOccurredAt());
+    }
+
+    static TradeEvent event(TradeEventType type) {
+        return new TradeEvent(
+                UUID.randomUUID(), UUID.randomUUID(), "TRD-2026-12001", TradeType.BUY,
+                TradeStatus.RECEIVED, type, OffsetDateTime.parse("2026-09-17T14:00:00Z"), "request-123");
     }
 }

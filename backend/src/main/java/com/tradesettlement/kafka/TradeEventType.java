@@ -1,7 +1,7 @@
 package com.tradesettlement.kafka;
 
 public enum TradeEventType {
-    TRADE_SUBMITTED,
+    TRADE_ACCEPTED,
     VALIDATION_COMPLETED,
     ENRICHMENT_COMPLETED,
     SETTLEMENT_REQUESTED,
