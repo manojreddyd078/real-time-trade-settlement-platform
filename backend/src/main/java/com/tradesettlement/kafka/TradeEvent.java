@@ -42,6 +42,13 @@ public class TradeEvent {
                 correlationId);
     }
 
+    public static TradeEvent validationCompleted(Trade trade, String correlationId) {
+        return new TradeEvent(
+                UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
+                trade.getStatus(), TradeEventType.VALIDATION_COMPLETED, OffsetDateTime.now(ZoneOffset.UTC),
+                correlationId);
+    }
+
     public UUID getEventId() { return eventId; }
     public void setEventId(UUID eventId) { this.eventId = eventId; }
     public UUID getTradeId() { return tradeId; }

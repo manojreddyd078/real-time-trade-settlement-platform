@@ -11,11 +11,6 @@ public class TradeEventConsumers {
 
     private static final Logger log = LoggerFactory.getLogger(TradeEventConsumers.class);
 
-    @KafkaListener(topics = "${app.kafka.topics.trade-events}", groupId = "${app.kafka.consumer-groups.validation}")
-    public void consumeForValidation(TradeEvent event) {
-        log.info("trade_event_received stage=validation eventId={} tradeId={}", event.getEventId(), event.getTradeId());
-    }
-
     @KafkaListener(topics = "${app.kafka.topics.trade-validation}", groupId = "${app.kafka.consumer-groups.enrichment}")
     public void consumeForEnrichment(TradeEvent event) {
         log.info("trade_event_received stage=enrichment eventId={} tradeId={}", event.getEventId(), event.getTradeId());

@@ -5,11 +5,11 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
-public class TradeSubmittedKafkaPublisher {
+public class TradeKafkaPublisher {
 
     private final TradeEventProducer producer;
 
-    public TradeSubmittedKafkaPublisher(TradeEventProducer producer) {
+    public TradeKafkaPublisher(TradeEventProducer producer) {
         this.producer = producer;
     }
 
@@ -17,6 +17,8 @@ public class TradeSubmittedKafkaPublisher {
     public void publishAfterCommit(TradeEvent event) {
         if (event.getEventType() == TradeEventType.TRADE_ACCEPTED) {
             producer.publishAccepted(event);
+        } else if (event.getEventType() == TradeEventType.VALIDATION_COMPLETED) {
+            producer.publishValidation(event);
         }
     }
 }
