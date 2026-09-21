@@ -49,6 +49,11 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.UNPROCESSABLE_ENTITY, "REFERENCE_DATA_NOT_FOUND", exception.getMessage(), request, null);
     }
 
+    @ExceptionHandler(TradeNotFoundException.class)
+    ResponseEntity<ApiErrorResponse> handleTradeNotFound(TradeNotFoundException exception, HttpServletRequest request) {
+        return response(HttpStatus.NOT_FOUND, "TRADE_NOT_FOUND", exception.getMessage(), request, null);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ApiErrorResponse> handleDataIntegrity(DataIntegrityViolationException exception, HttpServletRequest request) {
         log.warn("trade_persistence_constraint_failed", exception);

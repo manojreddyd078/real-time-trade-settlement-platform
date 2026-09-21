@@ -17,7 +17,8 @@ public class TradeKafkaPublisher {
     public void publishAfterCommit(TradeEvent event) {
         if (event.getEventType() == TradeEventType.TRADE_ACCEPTED) {
             producer.publishAccepted(event);
-        } else if (event.getEventType() == TradeEventType.VALIDATION_COMPLETED) {
+        } else if (event.getEventType() == TradeEventType.VALIDATION_COMPLETED
+                || event.getEventType() == TradeEventType.VALIDATION_REJECTED) {
             producer.publishValidation(event);
         }
     }

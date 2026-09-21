@@ -41,4 +41,15 @@ class TradeKafkaPublisherTest {
         verify(producer, never()).publishAccepted(event);
         verify(producer, never()).publishValidation(event);
     }
+
+    @Test
+    void publishesRejectedValidationResult() {
+        TradeEventProducer producer = mock(TradeEventProducer.class);
+        TradeKafkaPublisher publisher = new TradeKafkaPublisher(producer);
+        TradeEvent event = TradeEventSerializationTest.event(TradeEventType.VALIDATION_REJECTED);
+
+        publisher.publishAfterCommit(event);
+
+        verify(producer).publishValidation(event);
+    }
 }

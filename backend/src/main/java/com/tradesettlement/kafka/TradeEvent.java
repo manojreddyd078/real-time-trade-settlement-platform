@@ -2,6 +2,9 @@ package com.tradesettlement.kafka;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import com.tradesettlement.entity.Trade;
@@ -18,6 +21,7 @@ public class TradeEvent {
     private TradeEventType eventType;
     private OffsetDateTime occurredAt;
     private String correlationId;
+    private List<String> validationErrors = new ArrayList<>();
 
     public TradeEvent() {
     }
@@ -35,6 +39,13 @@ public class TradeEvent {
         this.correlationId = correlationId;
     }
 
+    public TradeEvent(UUID eventId, UUID tradeId, String tradeReference, TradeType tradeType,
+                      TradeStatus status, TradeEventType eventType, OffsetDateTime occurredAt,
+                      String correlationId, List<String> validationErrors) {
+        this(eventId, tradeId, tradeReference, tradeType, status, eventType, occurredAt, correlationId);
+        this.validationErrors = validationErrors == null ? new ArrayList<>() : new ArrayList<>(validationErrors);
+    }
+
     public static TradeEvent accepted(Trade trade, String correlationId) {
         return new TradeEvent(
                 UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
@@ -47,6 +58,13 @@ public class TradeEvent {
                 UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
                 trade.getStatus(), TradeEventType.VALIDATION_COMPLETED, OffsetDateTime.now(ZoneOffset.UTC),
                 correlationId);
+    }
+
+    public static TradeEvent validationRejected(Trade trade, String correlationId, List<String> validationErrors) {
+        return new TradeEvent(
+                UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
+                trade.getStatus(), TradeEventType.VALIDATION_REJECTED, OffsetDateTime.now(ZoneOffset.UTC),
+                correlationId, validationErrors);
     }
 
     public UUID getEventId() { return eventId; }
@@ -65,4 +83,8 @@ public class TradeEvent {
     public void setOccurredAt(OffsetDateTime occurredAt) { this.occurredAt = occurredAt; }
     public String getCorrelationId() { return correlationId; }
     public void setCorrelationId(String correlationId) { this.correlationId = correlationId; }
+    public List<String> getValidationErrors() { return Collections.unmodifiableList(validationErrors); }
+    public void setValidationErrors(List<String> validationErrors) {
+        this.validationErrors = validationErrors == null ? new ArrayList<>() : new ArrayList<>(validationErrors);
+    }
 }

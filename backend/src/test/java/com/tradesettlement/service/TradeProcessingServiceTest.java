@@ -10,6 +10,7 @@ import com.tradesettlement.exception.TradeProcessingException;
 import com.tradesettlement.kafka.TradeEvent;
 import com.tradesettlement.kafka.TradeEventType;
 import com.tradesettlement.repository.TradeRepository;
+import com.tradesettlement.validation.TradeProcessingValidator;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,7 +30,8 @@ class TradeProcessingServiceTest {
     void advancesStatusAndEmitsValidationCompletedEvent() {
         TradeRepository repository = mock(TradeRepository.class);
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher);
+        TradeProcessingValidator validator = mock(TradeProcessingValidator.class);
+        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator);
         Trade trade = trade(TradeStatus.RECEIVED);
         TradeEvent event = TradeEvent.accepted(trade, "correlation-123");
         when(repository.findById(trade.getId())).thenReturn(Optional.of(trade));
@@ -51,7 +53,8 @@ class TradeProcessingServiceTest {
     void treatsAnAlreadyValidatedTradeAsIdempotentlyProcessed() {
         TradeRepository repository = mock(TradeRepository.class);
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher);
+        TradeProcessingValidator validator = mock(TradeProcessingValidator.class);
+        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator);
         Trade trade = trade(TradeStatus.VALIDATED);
         TradeEvent event = TradeEvent.accepted(trade, "correlation-123");
         when(repository.findById(trade.getId())).thenReturn(Optional.of(trade));
@@ -66,12 +69,35 @@ class TradeProcessingServiceTest {
     void rejectsAnEventForAnUnknownTrade() {
         TradeRepository repository = mock(TradeRepository.class);
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher);
+        TradeProcessingValidator validator = mock(TradeProcessingValidator.class);
+        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator);
         Trade trade = trade(TradeStatus.RECEIVED);
         TradeEvent event = TradeEvent.accepted(trade, "correlation-123");
         when(repository.findById(trade.getId())).thenReturn(Optional.empty());
 
         assertThrows(TradeProcessingException.class, () -> service.processAcceptedTrade(event));
+    }
+
+    @Test
+    void rejectsInvalidTradeAndPublishesValidationErrors() {
+        TradeRepository repository = mock(TradeRepository.class);
+        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+        TradeProcessingValidator validator = mock(TradeProcessingValidator.class);
+        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator);
+        Trade trade = trade(TradeStatus.RECEIVED);
+        TradeEvent event = TradeEvent.accepted(trade, "correlation-123");
+        when(repository.findById(trade.getId())).thenReturn(Optional.of(trade));
+        when(validator.validate(trade)).thenReturn(java.util.List.of("currency is missing or inactive"));
+
+        service.processAcceptedTrade(event);
+
+        assertEquals(TradeStatus.REJECTED, trade.getStatus());
+        verify(repository, times(2)).saveAndFlush(trade);
+        ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        TradeEvent publishedEvent = (TradeEvent) eventCaptor.getValue();
+        assertEquals(TradeEventType.VALIDATION_REJECTED, publishedEvent.getEventType());
+        assertEquals(java.util.List.of("currency is missing or inactive"), publishedEvent.getValidationErrors());
     }
 
     private Trade trade(TradeStatus status) {

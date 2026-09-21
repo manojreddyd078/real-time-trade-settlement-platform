@@ -7,6 +7,7 @@ import com.tradesettlement.dto.TradeSubmissionResponse;
 import com.tradesettlement.entity.TradeStatus;
 import com.tradesettlement.exception.DuplicateTradeException;
 import com.tradesettlement.service.TradeSubmissionService;
+import com.tradesettlement.service.TradeQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,6 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,6 +32,9 @@ class TradeControllerTest {
 
     @MockBean
     private TradeSubmissionService tradeSubmissionService;
+
+    @MockBean
+    private TradeQueryService tradeQueryService;
 
     @Test
     void submitsValidTrade() throws Exception {
@@ -82,6 +87,19 @@ class TradeControllerTest {
                         .header("Access-Control-Request-Method", "POST"))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5173"));
+    }
+
+    @Test
+    void returnsLatestValidationStatus() throws Exception {
+        UUID tradeId = UUID.fromString("7a0172dc-99c9-4cda-86f3-1b76ed537e1d");
+        when(tradeQueryService.get(tradeId)).thenReturn(
+                new TradeSubmissionResponse(tradeId, "TRD-2026-10001", TradeStatus.REJECTED,
+                        OffsetDateTime.parse("2026-09-10T14:30:00Z")));
+
+        mockMvc.perform(get("/api/trades/{tradeId}", tradeId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(tradeId.toString()))
+                .andExpect(jsonPath("$.status").value("REJECTED"));
     }
 
     private String validRequest() {

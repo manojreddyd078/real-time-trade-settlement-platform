@@ -6,6 +6,7 @@ import com.tradesettlement.exception.TradeProcessingException;
 import com.tradesettlement.kafka.TradeEvent;
 import com.tradesettlement.kafka.TradeEventType;
 import com.tradesettlement.repository.TradeRepository;
+import com.tradesettlement.validation.TradeProcessingValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -19,10 +20,13 @@ public class TradeProcessingService {
 
     private final TradeRepository tradeRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final TradeProcessingValidator validator;
 
-    public TradeProcessingService(TradeRepository tradeRepository, ApplicationEventPublisher eventPublisher) {
+    public TradeProcessingService(TradeRepository tradeRepository, ApplicationEventPublisher eventPublisher,
+                                  TradeProcessingValidator validator) {
         this.tradeRepository = tradeRepository;
         this.eventPublisher = eventPublisher;
+        this.validator = validator;
     }
 
     @Transactional
@@ -31,7 +35,7 @@ public class TradeProcessingService {
         Trade trade = tradeRepository.findById(event.getTradeId())
                 .orElseThrow(() -> new TradeProcessingException("Trade was not found: " + event.getTradeId()));
 
-        if (trade.getStatus() == TradeStatus.VALIDATED) {
+        if (trade.getStatus() == TradeStatus.VALIDATED || trade.getStatus() == TradeStatus.REJECTED) {
             log.info("trade_event_already_processed status={}", trade.getStatus());
             return;
         }
@@ -46,6 +50,15 @@ public class TradeProcessingService {
         trade.setStatus(TradeStatus.VALIDATING);
         tradeRepository.saveAndFlush(trade);
         log.info("trade_processing_status_updated previousStatus={} status=VALIDATING", previousStatus);
+
+        java.util.List<String> validationErrors = validator.validate(trade);
+        if (!validationErrors.isEmpty()) {
+            trade.setStatus(TradeStatus.REJECTED);
+            tradeRepository.saveAndFlush(trade);
+            log.warn("trade_validation_rejected errorCount={} errors={}", validationErrors.size(), validationErrors);
+            eventPublisher.publishEvent(TradeEvent.validationRejected(trade, event.getCorrelationId(), validationErrors));
+            return;
+        }
 
         trade.setStatus(TradeStatus.VALIDATED);
         tradeRepository.saveAndFlush(trade);

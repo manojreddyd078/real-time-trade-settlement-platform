@@ -9,7 +9,6 @@ import com.tradesettlement.entity.TradeStatus;
 import com.tradesettlement.exception.DuplicateTradeException;
 import com.tradesettlement.kafka.TradeEvent;
 import com.tradesettlement.repository.TradeRepository;
-import com.tradesettlement.validation.TradeSubmissionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -23,13 +22,10 @@ public class TradeSubmissionService {
     private static final Logger log = LoggerFactory.getLogger(TradeSubmissionService.class);
 
     private final TradeRepository tradeRepository;
-    private final TradeSubmissionValidator validator;
     private final ApplicationEventPublisher eventPublisher;
 
-    public TradeSubmissionService(TradeRepository tradeRepository, TradeSubmissionValidator validator,
-                                  ApplicationEventPublisher eventPublisher) {
+    public TradeSubmissionService(TradeRepository tradeRepository, ApplicationEventPublisher eventPublisher) {
         this.tradeRepository = tradeRepository;
-        this.validator = validator;
         this.eventPublisher = eventPublisher;
     }
 
@@ -42,7 +38,6 @@ public class TradeSubmissionService {
                 throw new DuplicateTradeException(request.getTradeReference());
             }
 
-            validator.validate(request);
             Trade trade = toEntity(request);
             Trade savedTrade = tradeRepository.saveAndFlush(trade);
             MDC.put("tradeId", savedTrade.getId().toString());

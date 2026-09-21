@@ -47,6 +47,7 @@ td { padding: 16px 18px; border-top: 1px solid #edf0ee; font-size: .78rem; }
 .trade-status--settled, .trade-status--ready_for_settlement { color: #256448; background: #e0f1e8; }
 .trade-status--settlement_pending { color: #856319; background: #faf0d5; }
 .trade-status--failed { color: #9c402e; background: #f9e5df; }
+.trade-status--rejected { color: #9c402e; background: #f9e5df; }
 .indicator { width: 8px; height: 8px; border-radius: 50%; background: #d79835; flex: none; }
 .indicator--up { background: #60bd83; box-shadow: 0 0 0 3px rgba(96, 189, 131, .13); }
 .indicator--unavailable { background: #db6555; }
@@ -74,6 +75,7 @@ td { padding: 16px 18px; border-top: 1px solid #edf0ee; font-size: .78rem; }
 .spinner { display: inline-block; width: 12px; height: 12px; margin-right: 7px; border: 2px solid rgba(255,255,255,.45); border-top-color: #fff; border-radius: 50%; vertical-align: -2px; animation: spin .7s linear infinite; }
 .notice { display: grid; gap: 5px; margin: 22px 26px 0; padding: 15px 17px; border-radius: 8px; font-size: .78rem; }
 .notice--success { color: #215c43; background: #e3f3ea; border: 1px solid #bbdfca; }
+.notice--pending { color: #705619; background: #fbf1d9; border: 1px solid #ead7a5; }
 .notice--error { color: #8a3828; background: #fae8e3; border: 1px solid #efc7bd; }
 .notice code { width: fit-content; padding: 4px 7px; border-radius: 4px; background: rgba(255,255,255,.55); user-select: all; }
 .notice small { opacity: .78; }

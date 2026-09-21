@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { submitTrade } from '../services/api.js'
-import { TradeType } from '../types/trade.js'
+import { useEffect, useState } from 'react'
+import { getTrade, submitTrade } from '../services/api.js'
+import { formatTradeStatus, TradeStatus, TradeType } from '../types/trade.js'
 import { validateTrade } from '../utils/tradeValidation.js'
 
 const initialValues = {
@@ -17,6 +17,19 @@ function TradeForm() {
   const [values, setValues] = useState(initialValues)
   const [errors, setErrors] = useState({})
   const [submission, setSubmission] = useState({ state: 'idle' })
+
+  useEffect(() => {
+    if (submission.state !== 'success' || ![TradeStatus.RECEIVED, TradeStatus.VALIDATING].includes(submission.result.status)) return undefined
+    const timer = window.setTimeout(async () => {
+      try {
+        const result = await getTrade(submission.result.id)
+        setSubmission({ state: 'success', result })
+      } catch (error) {
+        setSubmission({ state: 'error', message: error.message, requestId: error.requestId })
+      }
+    }, 1000)
+    return () => window.clearTimeout(timer)
+  }, [submission])
 
   const update = (event) => {
     const { name, value } = event.target
@@ -41,7 +54,7 @@ function TradeForm() {
 
   return (
     <form className="trade-form" onSubmit={handleSubmit} noValidate>
-      {submission.state === 'success' && <div className="notice notice--success" role="status"><strong>Trade submitted successfully</strong><span>Generated trade ID</span><code>{submission.result.id}</code><small>Status: {submission.result.status}</small></div>}
+      {submission.state === 'success' && <div className={`notice ${submission.result.status === TradeStatus.REJECTED ? 'notice--error' : submission.result.status === TradeStatus.VALIDATED ? 'notice--success' : 'notice--pending'}`} role="status"><strong>{submission.result.status === TradeStatus.REJECTED ? 'Trade rejected during validation' : submission.result.status === TradeStatus.VALIDATED ? 'Trade validated successfully' : 'Trade submitted — validation in progress'}</strong><span>Generated trade ID</span><code>{submission.result.id}</code><small>Status: {formatTradeStatus(submission.result.status)}</small></div>}
       {submission.state === 'error' && <div className="notice notice--error" role="alert"><strong>Trade could not be submitted</strong><span>{submission.message}</span>{submission.requestId && <small>Request ID: {submission.requestId}</small>}</div>}
       <section className="form-section"><div className="form-section-title"><span>01</span><div><h3>Trade details</h3><p>Core identifiers and transaction side</p></div></div><div className="form-grid">
         <Field label="Trade reference" name="tradeReference" value={values.tradeReference} onChange={update} error={errors.tradeReference} placeholder="TRD-2026-10001" />
