@@ -20,6 +20,9 @@ public class TradeKafkaPublisher {
         } else if (event.getEventType() == TradeEventType.VALIDATION_COMPLETED
                 || event.getEventType() == TradeEventType.VALIDATION_REJECTED) {
             producer.publishValidation(event);
+        } else if (event.getEventType() == TradeEventType.ENRICHMENT_COMPLETED
+                || event.getEventType() == TradeEventType.ENRICHMENT_FAILED) {
+            producer.publishEnrichment(event);
         }
     }
 }

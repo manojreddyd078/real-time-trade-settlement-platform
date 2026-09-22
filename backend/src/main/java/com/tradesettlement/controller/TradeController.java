@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import com.tradesettlement.dto.ApiErrorResponse;
 import com.tradesettlement.dto.TradeSubmissionRequest;
 import com.tradesettlement.dto.TradeSubmissionResponse;
+import com.tradesettlement.dto.TradeDetailsResponse;
 import com.tradesettlement.service.TradeSubmissionService;
 import com.tradesettlement.service.TradeQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,5 +58,11 @@ public class TradeController {
             content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     public TradeSubmissionResponse get(@PathVariable UUID tradeId) {
         return tradeQueryService.get(tradeId);
+    }
+
+    @GetMapping("/{tradeId}/details")
+    @Operation(summary = "Get trade details", description = "Returns captured and enriched trade information")
+    public TradeDetailsResponse details(@PathVariable UUID tradeId) {
+        return tradeQueryService.getDetails(tradeId);
     }
 }

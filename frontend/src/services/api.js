@@ -54,3 +54,11 @@ export async function getTrade(tradeId) {
 
   return body
 }
+
+export async function getTradeDetails(tradeId) {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
+  const response = await fetch(`${apiBaseUrl}/api/trades/${tradeId}/details`)
+  const body = await response.json().catch(() => null)
+  if (!response.ok) throw new ApiError(body?.message || `Trade details lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
+  return body
+}

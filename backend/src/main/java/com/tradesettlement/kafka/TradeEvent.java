@@ -67,6 +67,16 @@ public class TradeEvent {
                 correlationId, validationErrors);
     }
 
+    public static TradeEvent enrichmentCompleted(Trade trade, String correlationId) {
+        return new TradeEvent(UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
+                trade.getStatus(), TradeEventType.ENRICHMENT_COMPLETED, OffsetDateTime.now(ZoneOffset.UTC), correlationId);
+    }
+
+    public static TradeEvent enrichmentFailed(Trade trade, String correlationId, List<String> errors) {
+        return new TradeEvent(UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
+                trade.getStatus(), TradeEventType.ENRICHMENT_FAILED, OffsetDateTime.now(ZoneOffset.UTC), correlationId, errors);
+    }
+
     public UUID getEventId() { return eventId; }
     public void setEventId(UUID eventId) { this.eventId = eventId; }
     public UUID getTradeId() { return tradeId; }

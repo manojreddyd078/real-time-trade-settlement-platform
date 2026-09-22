@@ -71,6 +71,21 @@ public class Trade {
     @Column(name = "settlement_date", nullable = false)
     private LocalDate settlementDate;
 
+    @Column(name = "instrument_code", length = 50)
+    private String instrumentCode;
+    @Column(name = "instrument_name", length = 200)
+    private String instrumentName;
+    @Column(name = "buyer_counterparty_code", length = 50)
+    private String buyerCounterpartyCode;
+    @Column(name = "buyer_counterparty_name", length = 200)
+    private String buyerCounterpartyName;
+    @Column(name = "seller_counterparty_code", length = 50)
+    private String sellerCounterpartyCode;
+    @Column(name = "seller_counterparty_name", length = 200)
+    private String sellerCounterpartyName;
+    @Column(name = "enriched_at")
+    private OffsetDateTime enrichedAt;
+
     @Version
     @Column(name = "version", nullable = false)
     private long version;
@@ -193,6 +208,21 @@ public class Trade {
     public void setSettlementDate(LocalDate settlementDate) {
         this.settlementDate = settlementDate;
     }
+
+    public String getInstrumentCode() { return instrumentCode; }
+    public void setInstrumentCode(String instrumentCode) { this.instrumentCode = instrumentCode; }
+    public String getInstrumentName() { return instrumentName; }
+    public void setInstrumentName(String instrumentName) { this.instrumentName = instrumentName; }
+    public String getBuyerCounterpartyCode() { return buyerCounterpartyCode; }
+    public void setBuyerCounterpartyCode(String buyerCounterpartyCode) { this.buyerCounterpartyCode = buyerCounterpartyCode; }
+    public String getBuyerCounterpartyName() { return buyerCounterpartyName; }
+    public void setBuyerCounterpartyName(String buyerCounterpartyName) { this.buyerCounterpartyName = buyerCounterpartyName; }
+    public String getSellerCounterpartyCode() { return sellerCounterpartyCode; }
+    public void setSellerCounterpartyCode(String sellerCounterpartyCode) { this.sellerCounterpartyCode = sellerCounterpartyCode; }
+    public String getSellerCounterpartyName() { return sellerCounterpartyName; }
+    public void setSellerCounterpartyName(String sellerCounterpartyName) { this.sellerCounterpartyName = sellerCounterpartyName; }
+    public OffsetDateTime getEnrichedAt() { return enrichedAt; }
+    public void setEnrichedAt(OffsetDateTime enrichedAt) { this.enrichedAt = enrichedAt; }
 
     public long getVersion() {
         return version;
