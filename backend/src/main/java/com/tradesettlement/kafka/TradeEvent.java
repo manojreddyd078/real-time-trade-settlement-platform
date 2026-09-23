@@ -22,6 +22,7 @@ public class TradeEvent {
     private OffsetDateTime occurredAt;
     private String correlationId;
     private List<String> validationErrors = new ArrayList<>();
+    private List<String> eligibilityReasons = new ArrayList<>();
 
     public TradeEvent() {
     }
@@ -77,6 +78,18 @@ public class TradeEvent {
                 trade.getStatus(), TradeEventType.ENRICHMENT_FAILED, OffsetDateTime.now(ZoneOffset.UTC), correlationId, errors);
     }
 
+    public static TradeEvent eligibilityConfirmed(Trade trade, String correlationId) {
+        return new TradeEvent(UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
+                trade.getStatus(), TradeEventType.ELIGIBILITY_CONFIRMED, OffsetDateTime.now(ZoneOffset.UTC), correlationId);
+    }
+
+    public static TradeEvent eligibilityRejected(Trade trade, String correlationId, List<String> reasons) {
+        TradeEvent event = new TradeEvent(UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
+                trade.getStatus(), TradeEventType.ELIGIBILITY_REJECTED, OffsetDateTime.now(ZoneOffset.UTC), correlationId);
+        event.setEligibilityReasons(reasons);
+        return event;
+    }
+
     public UUID getEventId() { return eventId; }
     public void setEventId(UUID eventId) { this.eventId = eventId; }
     public UUID getTradeId() { return tradeId; }
@@ -96,5 +109,9 @@ public class TradeEvent {
     public List<String> getValidationErrors() { return Collections.unmodifiableList(validationErrors); }
     public void setValidationErrors(List<String> validationErrors) {
         this.validationErrors = validationErrors == null ? new ArrayList<>() : new ArrayList<>(validationErrors);
+    }
+    public List<String> getEligibilityReasons() { return Collections.unmodifiableList(eligibilityReasons); }
+    public void setEligibilityReasons(List<String> eligibilityReasons) {
+        this.eligibilityReasons = eligibilityReasons == null ? new ArrayList<>() : new ArrayList<>(eligibilityReasons);
     }
 }

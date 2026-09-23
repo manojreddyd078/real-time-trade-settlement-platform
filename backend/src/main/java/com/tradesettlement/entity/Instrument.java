@@ -16,6 +16,7 @@ public class Instrument {
     @Column(name = "instrument_class", nullable = false, length = 30) private String instrumentClass;
     @Column(name = "currency_code", nullable = false, length = 3) private String currencyCode;
     @Column(nullable = false) private boolean active = true;
+    @Column(name = "settlement_supported", nullable = false) private boolean settlementSupported = true;
 
     public Instrument() {}
     public UUID getId() { return id; }
@@ -32,4 +33,6 @@ public class Instrument {
     public void setCurrencyCode(String currencyCode) { this.currencyCode = currencyCode; }
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
+    public boolean isSettlementSupported() { return settlementSupported; }
+    public void setSettlementSupported(boolean settlementSupported) { this.settlementSupported = settlementSupported; }
 }

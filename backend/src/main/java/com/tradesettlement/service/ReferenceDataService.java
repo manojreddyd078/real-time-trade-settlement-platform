@@ -46,6 +46,7 @@ public class ReferenceDataService {
         value.setInstrumentClass(request.getInstrumentClass());
         value.setCurrencyCode(request.getCurrencyCode());
         value.setActive(request.isActive());
+        value.setSettlementSupported(request.isSettlementSupported());
         return instruments.save(value);
     }
 

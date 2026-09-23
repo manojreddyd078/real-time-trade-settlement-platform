@@ -61,4 +61,13 @@ class TradeKafkaPublisherTest {
         publisher.publishAfterCommit(event);
         verify(producer).publishEnrichment(event);
     }
+
+    @Test
+    void publishesEligibilityResult() {
+        TradeEventProducer producer = mock(TradeEventProducer.class);
+        TradeKafkaPublisher publisher = new TradeKafkaPublisher(producer);
+        TradeEvent event = TradeEventSerializationTest.event(TradeEventType.ELIGIBILITY_CONFIRMED);
+        publisher.publishAfterCommit(event);
+        verify(producer).publishSettlement(event);
+    }
 }

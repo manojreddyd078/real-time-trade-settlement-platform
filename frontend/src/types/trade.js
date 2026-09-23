@@ -8,6 +8,10 @@ export const TradeStatus = Object.freeze({
 
 export const TradeType = Object.freeze({ BUY: 'BUY', SELL: 'SELL' })
 
+export const SettlementEligibilityStatus = Object.freeze({
+  PENDING: 'PENDING', ELIGIBLE: 'ELIGIBLE', INELIGIBLE: 'INELIGIBLE'
+})
+
 /**
  * @typedef {Object} Trade
  * @property {string} id

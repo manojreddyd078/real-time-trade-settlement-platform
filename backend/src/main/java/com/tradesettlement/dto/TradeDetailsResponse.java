@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.tradesettlement.entity.Trade;
 import com.tradesettlement.entity.TradeStatus;
 import com.tradesettlement.entity.TradeType;
+import com.tradesettlement.entity.SettlementEligibilityStatus;
 
 public class TradeDetailsResponse {
     private final UUID id; private final String tradeReference; private final String externalReference;
@@ -16,6 +17,9 @@ public class TradeDetailsResponse {
     private final String buyerCounterpartyCode; private final String buyerCounterpartyName;
     private final String sellerCounterpartyCode; private final String sellerCounterpartyName;
     private final OffsetDateTime enrichedAt;
+    private final SettlementEligibilityStatus eligibilityStatus;
+    private final String eligibilityRejectionReason;
+    private final OffsetDateTime eligibilityCheckedAt;
 
     private TradeDetailsResponse(Trade trade) {
         id = trade.getId(); tradeReference = trade.getTradeReference(); externalReference = trade.getExternalReference();
@@ -25,6 +29,8 @@ public class TradeDetailsResponse {
         buyerCounterpartyCode = trade.getBuyerCounterpartyCode(); buyerCounterpartyName = trade.getBuyerCounterpartyName();
         sellerCounterpartyCode = trade.getSellerCounterpartyCode(); sellerCounterpartyName = trade.getSellerCounterpartyName();
         enrichedAt = trade.getEnrichedAt();
+        eligibilityStatus = trade.getEligibilityStatus(); eligibilityRejectionReason = trade.getEligibilityRejectionReason();
+        eligibilityCheckedAt = trade.getEligibilityCheckedAt();
     }
     public static TradeDetailsResponse from(Trade trade) { return new TradeDetailsResponse(trade); }
     public UUID getId() { return id; } public String getTradeReference() { return tradeReference; }
@@ -38,4 +44,7 @@ public class TradeDetailsResponse {
     public String getSellerCounterpartyCode() { return sellerCounterpartyCode; }
     public String getSellerCounterpartyName() { return sellerCounterpartyName; }
     public OffsetDateTime getEnrichedAt() { return enrichedAt; }
+    public SettlementEligibilityStatus getEligibilityStatus() { return eligibilityStatus; }
+    public String getEligibilityRejectionReason() { return eligibilityRejectionReason; }
+    public OffsetDateTime getEligibilityCheckedAt() { return eligibilityCheckedAt; }
 }

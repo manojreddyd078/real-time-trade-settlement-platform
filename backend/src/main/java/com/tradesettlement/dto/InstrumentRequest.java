@@ -11,6 +11,7 @@ public class InstrumentRequest {
     @NotBlank @Size(max = 30) private String instrumentClass;
     @NotBlank @Pattern(regexp = "^[A-Z]{3}$") private String currencyCode;
     private boolean active = true;
+    private boolean settlementSupported = true;
     public String getInstrumentCode() { return instrumentCode; }
     public void setInstrumentCode(String instrumentCode) { this.instrumentCode = instrumentCode; }
     public String getIsin() { return isin; }
@@ -23,4 +24,6 @@ public class InstrumentRequest {
     public void setCurrencyCode(String currencyCode) { this.currencyCode = currencyCode; }
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
+    public boolean isSettlementSupported() { return settlementSupported; }
+    public void setSettlementSupported(boolean settlementSupported) { this.settlementSupported = settlementSupported; }
 }

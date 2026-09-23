@@ -86,6 +86,14 @@ public class Trade {
     @Column(name = "enriched_at")
     private OffsetDateTime enrichedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "eligibility_status", nullable = false, length = 20)
+    private SettlementEligibilityStatus eligibilityStatus = SettlementEligibilityStatus.PENDING;
+    @Column(name = "eligibility_rejection_reason", length = 1000)
+    private String eligibilityRejectionReason;
+    @Column(name = "eligibility_checked_at")
+    private OffsetDateTime eligibilityCheckedAt;
+
     @Version
     @Column(name = "version", nullable = false)
     private long version;
@@ -223,6 +231,12 @@ public class Trade {
     public void setSellerCounterpartyName(String sellerCounterpartyName) { this.sellerCounterpartyName = sellerCounterpartyName; }
     public OffsetDateTime getEnrichedAt() { return enrichedAt; }
     public void setEnrichedAt(OffsetDateTime enrichedAt) { this.enrichedAt = enrichedAt; }
+    public SettlementEligibilityStatus getEligibilityStatus() { return eligibilityStatus; }
+    public void setEligibilityStatus(SettlementEligibilityStatus eligibilityStatus) { this.eligibilityStatus = eligibilityStatus; }
+    public String getEligibilityRejectionReason() { return eligibilityRejectionReason; }
+    public void setEligibilityRejectionReason(String eligibilityRejectionReason) { this.eligibilityRejectionReason = eligibilityRejectionReason; }
+    public OffsetDateTime getEligibilityCheckedAt() { return eligibilityCheckedAt; }
+    public void setEligibilityCheckedAt(OffsetDateTime eligibilityCheckedAt) { this.eligibilityCheckedAt = eligibilityCheckedAt; }
 
     public long getVersion() {
         return version;
