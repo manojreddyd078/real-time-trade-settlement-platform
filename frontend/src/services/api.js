@@ -62,3 +62,11 @@ export async function getTradeDetails(tradeId) {
   if (!response.ok) throw new ApiError(body?.message || `Trade details lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
   return body
 }
+
+export async function getSettlements() {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
+  const response = await fetch(`${apiBaseUrl}/api/settlements`)
+  const body = await response.json().catch(() => null)
+  if (!response.ok) throw new ApiError(body?.message || `Settlement status lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
+  return body
+}

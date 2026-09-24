@@ -100,6 +100,18 @@ td { padding: 16px 18px; border-top: 1px solid #edf0ee; font-size: .78rem; }
 .detail-item { display: grid; gap: 5px; }
 .detail-item span { color: #819089; font-size: .67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
 .detail-item strong { color: #27352f; font-size: .82rem; overflow-wrap: anywhere; }
+.settlements-page { padding-bottom: 50px; }
+.settlement-list { display: grid; gap: 13px; }
+.settlement-card { padding: 19px 21px; border: 1px solid #dfe5e1; border-radius: 10px; background: #fff; box-shadow: 0 4px 16px rgba(23, 35, 31, .035); }
+.settlement-card__heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.settlement-card__heading > div { display: grid; gap: 4px; }
+.settlement-card__heading > div span { color: #1b6048; font-size: .76rem; font-weight: 750; }
+.settlement-card__heading > div strong { color: #67766f; font-family: ui-monospace, monospace; font-size: .68rem; }
+.settlement-card__details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 17px; padding-top: 15px; border-top: 1px solid #edf0ee; }
+.settlement-card__details span { display: grid; gap: 4px; color: #819089; font-size: .66rem; text-transform: uppercase; }
+.settlement-card__details strong { color: #34423c; font-size: .75rem; text-transform: none; }
+.settlement-failure { margin: 15px 0 0; padding: 10px 12px; color: #883b2c; background: #fcede8; border-left: 3px solid #c85b45; font-size: .74rem; }
+.empty-state { padding: 42px; border: 1px dashed #ccd6d1; border-radius: 10px; color: #74817c; background: #fff; text-align: center; font-size: .82rem; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 1050px) { .metrics { grid-template-columns: repeat(2, 1fr); } .form-section { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .app-shell { display: block; } .sidebar { position: static; height: auto; padding: 16px; } .sidebar nav { display: flex; overflow-x: auto; } .brand { padding-bottom: 16px; } .sidebar-footer { display: none; } .content { padding: 0 18px 36px; } .operator div { display: none; } .intro { align-items: flex-start; gap: 18px; } }

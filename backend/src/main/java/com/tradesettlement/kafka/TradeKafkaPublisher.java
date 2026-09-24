@@ -26,6 +26,9 @@ public class TradeKafkaPublisher {
         } else if (event.getEventType() == TradeEventType.ELIGIBILITY_CONFIRMED
                 || event.getEventType() == TradeEventType.ELIGIBILITY_REJECTED) {
             producer.publishSettlement(event);
+        } else if (event.getEventType() == TradeEventType.SETTLEMENT_COMPLETED
+                || event.getEventType() == TradeEventType.SETTLEMENT_FAILED) {
+            producer.publishStatus(event);
         }
     }
 }

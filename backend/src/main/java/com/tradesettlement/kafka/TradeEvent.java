@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.tradesettlement.entity.Trade;
 import com.tradesettlement.entity.TradeStatus;
 import com.tradesettlement.entity.TradeType;
+import com.tradesettlement.entity.Settlement;
 
 public class TradeEvent {
 
@@ -23,6 +24,9 @@ public class TradeEvent {
     private String correlationId;
     private List<String> validationErrors = new ArrayList<>();
     private List<String> eligibilityReasons = new ArrayList<>();
+    private UUID settlementId;
+    private String settlementReference;
+    private String settlementFailureReason;
 
     public TradeEvent() {
     }
@@ -90,6 +94,20 @@ public class TradeEvent {
         return event;
     }
 
+    public static TradeEvent settlementCompleted(Trade trade, Settlement settlement, String correlationId) {
+        TradeEvent event = new TradeEvent(UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
+                trade.getStatus(), TradeEventType.SETTLEMENT_COMPLETED, OffsetDateTime.now(ZoneOffset.UTC), correlationId);
+        event.setSettlement(settlement, null);
+        return event;
+    }
+
+    public static TradeEvent settlementFailed(Trade trade, Settlement settlement, String correlationId) {
+        TradeEvent event = new TradeEvent(UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
+                trade.getStatus(), TradeEventType.SETTLEMENT_FAILED, OffsetDateTime.now(ZoneOffset.UTC), correlationId);
+        event.setSettlement(settlement, settlement.getFailureReason());
+        return event;
+    }
+
     public UUID getEventId() { return eventId; }
     public void setEventId(UUID eventId) { this.eventId = eventId; }
     public UUID getTradeId() { return tradeId; }
@@ -113,5 +131,15 @@ public class TradeEvent {
     public List<String> getEligibilityReasons() { return Collections.unmodifiableList(eligibilityReasons); }
     public void setEligibilityReasons(List<String> eligibilityReasons) {
         this.eligibilityReasons = eligibilityReasons == null ? new ArrayList<>() : new ArrayList<>(eligibilityReasons);
+    }
+    public UUID getSettlementId() { return settlementId; }
+    public void setSettlementId(UUID settlementId) { this.settlementId = settlementId; }
+    public String getSettlementReference() { return settlementReference; }
+    public void setSettlementReference(String settlementReference) { this.settlementReference = settlementReference; }
+    public String getSettlementFailureReason() { return settlementFailureReason; }
+    public void setSettlementFailureReason(String settlementFailureReason) { this.settlementFailureReason = settlementFailureReason; }
+    private void setSettlement(Settlement settlement, String failureReason) {
+        this.settlementId = settlement.getId(); this.settlementReference = settlement.getInstructionReference();
+        this.settlementFailureReason = failureReason;
     }
 }
