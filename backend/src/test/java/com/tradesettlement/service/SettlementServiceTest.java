@@ -79,11 +79,13 @@ class SettlementServiceTest {
     private static class Fixture {
         final TradeRepository trades = mock(TradeRepository.class); final SettlementRepository settlements = mock(SettlementRepository.class);
         final SettlementExecutor executor = mock(SettlementExecutor.class); final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
-        final SettlementService service = new SettlementService(trades, settlements, executor, publisher, CLOCK);
+        final TradeStatusLifecycleService lifecycle = new TradeStatusLifecycleService(
+                mock(com.tradesettlement.repository.TradeStatusHistoryRepository.class), CLOCK);
+        final SettlementService service = new SettlementService(trades, settlements, executor, publisher, CLOCK, lifecycle);
         final Trade trade = trade();
         final TradeEvent event = new TradeEvent(UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(), trade.getStatus(), TradeEventType.ELIGIBILITY_CONFIRMED, java.time.OffsetDateTime.now(CLOCK), "correlation-123");
         Fixture() { when(trades.findById(trade.getId())).thenReturn(Optional.of(trade)); when(settlements.findByTradeId(trade.getId())).thenReturn(Optional.empty()); }
         TradeEvent published() { ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class); verify(publisher).publishEvent(captor.capture()); return (TradeEvent) captor.getValue(); }
-        static Trade trade() { Trade value = new Trade(); ReflectionTestUtils.setField(value, "id", UUID.randomUUID()); value.setTradeReference("TRD-STL-1"); value.setTradeType(TradeType.BUY); value.setStatus(TradeStatus.READY_FOR_SETTLEMENT); value.setEligibilityStatus(SettlementEligibilityStatus.ELIGIBLE); value.setQuantity(new BigDecimal("100")); value.setPrice(new BigDecimal("25.00")); value.setCurrencyCode("USD"); return value; }
+        static Trade trade() { Trade value = new Trade(); ReflectionTestUtils.setField(value, "id", UUID.randomUUID()); value.setTradeReference("TRD-STL-1"); value.setTradeType(TradeType.BUY); value.setStatus(TradeStatus.ELIGIBLE); value.setEligibilityStatus(SettlementEligibilityStatus.ELIGIBLE); value.setQuantity(new BigDecimal("100")); value.setPrice(new BigDecimal("25.00")); value.setCurrencyCode("USD"); return value; }
     }
 }

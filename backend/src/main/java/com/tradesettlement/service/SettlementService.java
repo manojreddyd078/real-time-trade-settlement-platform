@@ -27,11 +27,13 @@ public class SettlementService {
     private static final Logger log = LoggerFactory.getLogger(SettlementService.class);
     private final TradeRepository trades; private final SettlementRepository settlements;
     private final SettlementExecutor executor; private final ApplicationEventPublisher eventPublisher; private final Clock clock;
+    private final TradeStatusLifecycleService statusLifecycle;
 
     public SettlementService(TradeRepository trades, SettlementRepository settlements, SettlementExecutor executor,
-                             ApplicationEventPublisher eventPublisher, Clock clock) {
+                             ApplicationEventPublisher eventPublisher, Clock clock, TradeStatusLifecycleService statusLifecycle) {
         this.trades = trades; this.settlements = settlements; this.executor = executor;
         this.eventPublisher = eventPublisher; this.clock = clock;
+        this.statusLifecycle = statusLifecycle;
     }
 
     @Transactional
@@ -48,7 +50,7 @@ public class SettlementService {
             return;
         }
         if (trade.getEligibilityStatus() != SettlementEligibilityStatus.ELIGIBLE
-                || (trade.getStatus() != TradeStatus.READY_FOR_SETTLEMENT && trade.getStatus() != TradeStatus.SETTLEMENT_PENDING)) {
+                || (trade.getStatus() != TradeStatus.ELIGIBLE && trade.getStatus() != TradeStatus.SETTLEMENT_PENDING)) {
             throw new TradeProcessingException("Trade is not eligible for settlement");
         }
 
@@ -57,7 +59,7 @@ public class SettlementService {
             settlements.saveAndFlush(settlement);
         }
         settlement.setStatus(SettlementStatus.PROCESSING);
-        trade.setStatus(TradeStatus.SETTLEMENT_PENDING);
+        statusLifecycle.transition(trade, TradeStatus.SETTLEMENT_PENDING, "Settlement processing started", event.getCorrelationId());
         settlements.saveAndFlush(settlement); trades.saveAndFlush(trade);
         log.info("settlement_processing_started settlementId={} instructionReference={}",
                 settlement.getId(), settlement.getInstructionReference());
@@ -67,7 +69,7 @@ public class SettlementService {
             settlement.setStatus(SettlementStatus.SETTLED);
             settlement.setSettledAt(OffsetDateTime.now(clock));
             settlement.setFailureReason(null);
-            trade.setStatus(TradeStatus.SETTLED);
+            statusLifecycle.transition(trade, TradeStatus.SETTLED, "Settlement completed", event.getCorrelationId());
             settlements.saveAndFlush(settlement); trades.saveAndFlush(trade);
             log.info("settlement_completed settlementId={} instructionReference={}",
                     settlement.getId(), settlement.getInstructionReference());
@@ -75,7 +77,7 @@ public class SettlementService {
         } catch (RuntimeException exception) {
             settlement.setStatus(SettlementStatus.FAILED);
             settlement.setFailureReason(safeMessage(exception));
-            trade.setStatus(TradeStatus.FAILED);
+            statusLifecycle.transition(trade, TradeStatus.FAILED, settlement.getFailureReason(), event.getCorrelationId());
             settlements.saveAndFlush(settlement); trades.saveAndFlush(trade);
             log.error("settlement_failed settlementId={} instructionReference={} reason={}", settlement.getId(),
                     settlement.getInstructionReference(), settlement.getFailureReason(), exception);

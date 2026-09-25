@@ -23,10 +23,13 @@ public class TradeSubmissionService {
 
     private final TradeRepository tradeRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final TradeStatusLifecycleService statusLifecycle;
 
-    public TradeSubmissionService(TradeRepository tradeRepository, ApplicationEventPublisher eventPublisher) {
+    public TradeSubmissionService(TradeRepository tradeRepository, ApplicationEventPublisher eventPublisher,
+                                  TradeStatusLifecycleService statusLifecycle) {
         this.tradeRepository = tradeRepository;
         this.eventPublisher = eventPublisher;
+        this.statusLifecycle = statusLifecycle;
     }
 
     @Transactional
@@ -45,6 +48,7 @@ public class TradeSubmissionService {
             if (correlationId == null || correlationId.isBlank()) {
                 correlationId = UUID.randomUUID().toString();
             }
+            statusLifecycle.recordInitial(savedTrade, correlationId);
             eventPublisher.publishEvent(TradeEvent.accepted(savedTrade, correlationId));
             log.info("trade_submission_completed");
             return TradeSubmissionResponse.from(savedTrade);

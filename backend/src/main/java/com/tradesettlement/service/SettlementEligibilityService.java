@@ -29,12 +29,14 @@ public class SettlementEligibilityService {
     private final TradeRepository trades; private final InstrumentRepository instruments;
     private final CounterpartyRepository counterparties; private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
+    private final TradeStatusLifecycleService statusLifecycle;
 
     public SettlementEligibilityService(TradeRepository trades, InstrumentRepository instruments,
                                         CounterpartyRepository counterparties, ApplicationEventPublisher eventPublisher,
-                                        Clock clock) {
+                                        Clock clock, TradeStatusLifecycleService statusLifecycle) {
         this.trades = trades; this.instruments = instruments; this.counterparties = counterparties;
         this.eventPublisher = eventPublisher; this.clock = clock;
+        this.statusLifecycle = statusLifecycle;
     }
 
     @Transactional
@@ -54,7 +56,7 @@ public class SettlementEligibilityService {
         if (reasons.isEmpty()) {
             trade.setEligibilityStatus(SettlementEligibilityStatus.ELIGIBLE);
             trade.setEligibilityRejectionReason(null);
-            trade.setStatus(TradeStatus.READY_FOR_SETTLEMENT);
+            statusLifecycle.transition(trade, TradeStatus.ELIGIBLE, "Settlement eligibility confirmed", event.getCorrelationId());
             trades.saveAndFlush(trade);
             log.info("settlement_eligibility_confirmed settlementDate={} instrumentCode={}",
                     trade.getSettlementDate(), trade.getInstrumentCode());
@@ -64,6 +66,7 @@ public class SettlementEligibilityService {
 
         trade.setEligibilityStatus(SettlementEligibilityStatus.INELIGIBLE);
         trade.setEligibilityRejectionReason(String.join("; ", reasons));
+        statusLifecycle.transition(trade, TradeStatus.REJECTED, trade.getEligibilityRejectionReason(), event.getCorrelationId());
         trades.saveAndFlush(trade);
         log.warn("settlement_eligibility_rejected reasonCount={} reasons={}", reasons.size(), reasons);
         eventPublisher.publishEvent(TradeEvent.eligibilityRejected(trade, event.getCorrelationId(), reasons));

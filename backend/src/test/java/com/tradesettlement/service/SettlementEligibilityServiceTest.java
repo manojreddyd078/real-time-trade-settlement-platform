@@ -40,7 +40,7 @@ class SettlementEligibilityServiceTest {
         fixture.service.evaluate(fixture.event);
 
         assertEquals(SettlementEligibilityStatus.ELIGIBLE, fixture.trade.getEligibilityStatus());
-        assertEquals(TradeStatus.READY_FOR_SETTLEMENT, fixture.trade.getStatus());
+        assertEquals(TradeStatus.ELIGIBLE, fixture.trade.getStatus());
         assertEquals(TradeEventType.ELIGIBILITY_CONFIRMED, fixture.published().getEventType());
     }
 
@@ -53,7 +53,7 @@ class SettlementEligibilityServiceTest {
         fixture.service.evaluate(fixture.event);
 
         assertEquals(SettlementEligibilityStatus.INELIGIBLE, fixture.trade.getEligibilityStatus());
-        assertEquals(TradeStatus.ENRICHED, fixture.trade.getStatus());
+        assertEquals(TradeStatus.REJECTED, fixture.trade.getStatus());
         assertTrue(fixture.trade.getEligibilityRejectionReason().contains("Settlement date is not yet due"));
         assertTrue(fixture.trade.getEligibilityRejectionReason().contains("Instrument is not supported"));
         TradeEvent result = fixture.published();
@@ -76,7 +76,9 @@ class SettlementEligibilityServiceTest {
         final InstrumentRepository instruments = mock(InstrumentRepository.class);
         final CounterpartyRepository counterparties = mock(CounterpartyRepository.class);
         final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
-        final SettlementEligibilityService service = new SettlementEligibilityService(trades, instruments, counterparties, publisher, CLOCK);
+        final TradeStatusLifecycleService lifecycle = new TradeStatusLifecycleService(
+                mock(com.tradesettlement.repository.TradeStatusHistoryRepository.class), CLOCK);
+        final SettlementEligibilityService service = new SettlementEligibilityService(trades, instruments, counterparties, publisher, CLOCK, lifecycle);
         final Trade trade = trade();
         final TradeEvent event = new TradeEvent(UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(),
                 trade.getStatus(), TradeEventType.ENRICHMENT_COMPLETED, java.time.OffsetDateTime.now(CLOCK), "correlation-123");

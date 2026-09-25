@@ -8,7 +8,7 @@ import { getBackendStatus } from './services/api.js'
 import { TradeStatus, TradeType } from './types/trade.js'
 
 const sampleTrades = [
-  { id: '1', tradeReference: 'TRD-2026-09421', tradeType: TradeType.BUY, status: TradeStatus.READY_FOR_SETTLEMENT, instrumentCode: 'US91282CJL6', counterparty: 'Northstar Capital', quantity: 250000, price: 99.42, currencyCode: 'USD', settlementDate: 'Sep 11, 2026' },
+  { id: '1', tradeReference: 'TRD-2026-09421', tradeType: TradeType.BUY, status: TradeStatus.ELIGIBLE, instrumentCode: 'US91282CJL6', counterparty: 'Northstar Capital', quantity: 250000, price: 99.42, currencyCode: 'USD', settlementDate: 'Sep 11, 2026' },
   { id: '2', tradeReference: 'TRD-2026-09420', tradeType: TradeType.SELL, status: TradeStatus.SETTLEMENT_PENDING, instrumentCode: 'AAPL', counterparty: 'Meridian Securities', quantity: 12000, price: 228.16, currencyCode: 'USD', settlementDate: 'Sep 10, 2026' },
   { id: '3', tradeReference: 'TRD-2026-09419', tradeType: TradeType.BUY, status: TradeStatus.FAILED, instrumentCode: 'XS2196322150', counterparty: 'Apex Markets', quantity: 500000, price: 101.08, currencyCode: 'EUR', settlementDate: 'Sep 10, 2026' },
   { id: '4', tradeReference: 'TRD-2026-09418', tradeType: TradeType.SELL, status: TradeStatus.SETTLED, instrumentCode: 'MSFT', counterparty: 'Harbor Street Bank', quantity: 8500, price: 501.34, currencyCode: 'USD', settlementDate: 'Sep 09, 2026' }

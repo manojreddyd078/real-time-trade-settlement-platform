@@ -54,6 +54,12 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.NOT_FOUND, "TRADE_NOT_FOUND", exception.getMessage(), request, null);
     }
 
+    @ExceptionHandler(InvalidTradeStatusTransitionException.class)
+    ResponseEntity<ApiErrorResponse> handleInvalidStatusTransition(InvalidTradeStatusTransitionException exception,
+                                                                    HttpServletRequest request) {
+        return response(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION", exception.getMessage(), request, null);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ApiErrorResponse> handleDataIntegrity(DataIntegrityViolationException exception, HttpServletRequest request) {
         log.warn("trade_persistence_constraint_failed", exception);

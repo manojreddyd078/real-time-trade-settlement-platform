@@ -31,7 +31,7 @@ class TradeProcessingServiceTest {
         TradeRepository repository = mock(TradeRepository.class);
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
         TradeProcessingValidator validator = mock(TradeProcessingValidator.class);
-        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator);
+        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator, lifecycle());
         Trade trade = trade(TradeStatus.RECEIVED);
         TradeEvent event = TradeEvent.accepted(trade, "correlation-123");
         when(repository.findById(trade.getId())).thenReturn(Optional.of(trade));
@@ -39,7 +39,7 @@ class TradeProcessingServiceTest {
         service.processAcceptedTrade(event);
 
         assertEquals(TradeStatus.VALIDATED, trade.getStatus());
-        verify(repository, times(2)).saveAndFlush(trade);
+        verify(repository).saveAndFlush(trade);
         ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
         verify(eventPublisher).publishEvent(eventCaptor.capture());
         TradeEvent publishedEvent = (TradeEvent) eventCaptor.getValue();
@@ -54,7 +54,7 @@ class TradeProcessingServiceTest {
         TradeRepository repository = mock(TradeRepository.class);
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
         TradeProcessingValidator validator = mock(TradeProcessingValidator.class);
-        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator);
+        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator, lifecycle());
         Trade trade = trade(TradeStatus.VALIDATED);
         TradeEvent event = TradeEvent.accepted(trade, "correlation-123");
         when(repository.findById(trade.getId())).thenReturn(Optional.of(trade));
@@ -70,7 +70,7 @@ class TradeProcessingServiceTest {
         TradeRepository repository = mock(TradeRepository.class);
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
         TradeProcessingValidator validator = mock(TradeProcessingValidator.class);
-        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator);
+        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator, lifecycle());
         Trade trade = trade(TradeStatus.RECEIVED);
         TradeEvent event = TradeEvent.accepted(trade, "correlation-123");
         when(repository.findById(trade.getId())).thenReturn(Optional.empty());
@@ -83,7 +83,7 @@ class TradeProcessingServiceTest {
         TradeRepository repository = mock(TradeRepository.class);
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
         TradeProcessingValidator validator = mock(TradeProcessingValidator.class);
-        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator);
+        TradeProcessingService service = new TradeProcessingService(repository, eventPublisher, validator, lifecycle());
         Trade trade = trade(TradeStatus.RECEIVED);
         TradeEvent event = TradeEvent.accepted(trade, "correlation-123");
         when(repository.findById(trade.getId())).thenReturn(Optional.of(trade));
@@ -92,7 +92,7 @@ class TradeProcessingServiceTest {
         service.processAcceptedTrade(event);
 
         assertEquals(TradeStatus.REJECTED, trade.getStatus());
-        verify(repository, times(2)).saveAndFlush(trade);
+        verify(repository).saveAndFlush(trade);
         ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
         verify(eventPublisher).publishEvent(eventCaptor.capture());
         TradeEvent publishedEvent = (TradeEvent) eventCaptor.getValue();
@@ -107,5 +107,10 @@ class TradeProcessingServiceTest {
         trade.setTradeType(TradeType.BUY);
         trade.setStatus(status);
         return trade;
+    }
+
+    private TradeStatusLifecycleService lifecycle() {
+        return new TradeStatusLifecycleService(mock(com.tradesettlement.repository.TradeStatusHistoryRepository.class),
+                java.time.Clock.systemUTC());
     }
 }

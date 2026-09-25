@@ -9,6 +9,7 @@ import com.tradesettlement.dto.ApiErrorResponse;
 import com.tradesettlement.dto.TradeSubmissionRequest;
 import com.tradesettlement.dto.TradeSubmissionResponse;
 import com.tradesettlement.dto.TradeDetailsResponse;
+import com.tradesettlement.dto.TradeLifecycleStatusResponse;
 import com.tradesettlement.service.TradeSubmissionService;
 import com.tradesettlement.service.TradeQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,5 +65,11 @@ public class TradeController {
     @Operation(summary = "Get trade details", description = "Returns captured and enriched trade information")
     public TradeDetailsResponse details(@PathVariable UUID tradeId) {
         return tradeQueryService.getDetails(tradeId);
+    }
+
+    @GetMapping("/{tradeId}/status")
+    @Operation(summary = "Get trade lifecycle status", description = "Returns current status and ordered status history")
+    public TradeLifecycleStatusResponse status(@PathVariable UUID tradeId) {
+        return tradeQueryService.getStatus(tradeId);
     }
 }

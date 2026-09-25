@@ -55,7 +55,9 @@ class TradeEnrichmentServiceTest {
     private static class Fixture {
         final TradeRepository trades = mock(TradeRepository.class); final InstrumentRepository instruments = mock(InstrumentRepository.class);
         final CounterpartyRepository counterparties = mock(CounterpartyRepository.class); final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
-        final TradeEnrichmentService service = new TradeEnrichmentService(trades, instruments, counterparties, publisher);
+        final TradeStatusLifecycleService lifecycle = new TradeStatusLifecycleService(
+                mock(com.tradesettlement.repository.TradeStatusHistoryRepository.class), java.time.Clock.systemUTC());
+        final TradeEnrichmentService service = new TradeEnrichmentService(trades, instruments, counterparties, publisher, lifecycle);
         final Trade trade = trade();
         final TradeEvent event = new TradeEvent(UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(), TradeStatus.VALIDATED, TradeEventType.VALIDATION_COMPLETED, java.time.OffsetDateTime.now(), "correlation-123");
         Fixture() { when(trades.findById(trade.getId())).thenReturn(Optional.of(trade)); }

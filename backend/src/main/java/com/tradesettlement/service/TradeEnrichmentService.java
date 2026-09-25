@@ -28,13 +28,16 @@ public class TradeEnrichmentService {
     private final InstrumentRepository instruments;
     private final CounterpartyRepository counterparties;
     private final ApplicationEventPublisher eventPublisher;
+    private final TradeStatusLifecycleService statusLifecycle;
 
     public TradeEnrichmentService(TradeRepository trades, InstrumentRepository instruments,
-                                  CounterpartyRepository counterparties, ApplicationEventPublisher eventPublisher) {
+                                  CounterpartyRepository counterparties, ApplicationEventPublisher eventPublisher,
+                                  TradeStatusLifecycleService statusLifecycle) {
         this.trades = trades;
         this.instruments = instruments;
         this.counterparties = counterparties;
         this.eventPublisher = eventPublisher;
+        this.statusLifecycle = statusLifecycle;
     }
 
     @Transactional
@@ -57,7 +60,7 @@ public class TradeEnrichmentService {
         Counterparty seller = counterparties.findByIdAndActiveTrue(trade.getSellerCounterpartyId()).orElse(null);
         List<String> errors = missingReferenceErrors(instrument, buyer, seller);
         if (!errors.isEmpty()) {
-            trade.setStatus(TradeStatus.FAILED);
+            statusLifecycle.transition(trade, TradeStatus.FAILED, String.join("; ", errors), event.getCorrelationId());
             trades.saveAndFlush(trade);
             log.warn("trade_enrichment_failed errorCount={} errors={}", errors.size(), errors);
             eventPublisher.publishEvent(TradeEvent.enrichmentFailed(trade, event.getCorrelationId(), errors));
@@ -71,7 +74,7 @@ public class TradeEnrichmentService {
         trade.setSellerCounterpartyCode(seller.getCounterpartyCode());
         trade.setSellerCounterpartyName(seller.getLegalName());
         trade.setEnrichedAt(OffsetDateTime.now(ZoneOffset.UTC));
-        trade.setStatus(TradeStatus.ENRICHED);
+        statusLifecycle.transition(trade, TradeStatus.ENRICHED, "Trade reference data enriched", event.getCorrelationId());
         trades.saveAndFlush(trade);
         log.info("trade_enrichment_completed instrumentCode={} buyerCode={} sellerCode={}",
                 trade.getInstrumentCode(), trade.getBuyerCounterpartyCode(), trade.getSellerCounterpartyCode());

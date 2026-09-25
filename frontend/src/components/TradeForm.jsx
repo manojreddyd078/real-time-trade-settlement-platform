@@ -19,7 +19,7 @@ function TradeForm() {
   const [submission, setSubmission] = useState({ state: 'idle' })
 
   useEffect(() => {
-    if (submission.state !== 'success' || ![TradeStatus.RECEIVED, TradeStatus.VALIDATING].includes(submission.result.status)) return undefined
+    if (submission.state !== 'success' || submission.result.status !== TradeStatus.RECEIVED) return undefined
     const timer = window.setTimeout(async () => {
       try {
         const result = await getTrade(submission.result.id)
