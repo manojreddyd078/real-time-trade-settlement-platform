@@ -111,8 +111,33 @@ td { padding: 16px 18px; border-top: 1px solid #edf0ee; font-size: .78rem; }
 .settlement-card__details span { display: grid; gap: 4px; color: #819089; font-size: .66rem; text-transform: uppercase; }
 .settlement-card__details strong { color: #34423c; font-size: .75rem; text-transform: none; }
 .settlement-failure { margin: 15px 0 0; padding: 10px 12px; color: #883b2c; background: #fcede8; border-left: 3px solid #c85b45; font-size: .74rem; }
+.status-timeline { margin-top: 20px; padding: 23px 24px; border: 1px solid #dfe5e1; border-radius: 12px; background: #fff; box-shadow: 0 4px 16px rgba(23, 35, 31, .035); }
+.status-timeline--compact { margin-top: 18px; padding: 18px 0 0; border: 0; border-top: 1px solid #e7ebe8; border-radius: 0; box-shadow: none; }
+.status-timeline__heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 22px; margin-bottom: 22px; }
+.status-timeline__heading h3 { margin: 0 0 5px; font-size: .9rem; }
+.status-timeline__heading p { margin: 0; color: #819089; font-size: .7rem; }
+.status-timeline__summary { min-width: 150px; display: grid; justify-items: end; gap: 4px; text-align: right; }
+.status-timeline__summary strong { margin-top: 4px; color: #26372f; font-size: .86rem; }
+.status-timeline__summary small { color: #819089; font-size: .63rem; }
+.timeline-list { margin: 0; padding: 0; list-style: none; }
+.timeline-entry { position: relative; display: grid; grid-template-columns: 18px 1fr; gap: 12px; padding-bottom: 22px; }
+.timeline-entry:last-child { padding-bottom: 0; }
+.timeline-entry::before { content: ''; position: absolute; top: 13px; bottom: -2px; left: 5px; width: 2px; background: #dce7e1; }
+.timeline-entry:last-child::before { display: none; }
+.timeline-entry__marker { position: relative; z-index: 1; width: 12px; height: 12px; margin-top: 2px; border: 3px solid #d6eee2; border-radius: 50%; background: #25825f; }
+.timeline-entry--exception .timeline-entry__marker { border-color: #f4d1c8; background: #bf513b; }
+.timeline-entry__body { min-width: 0; }
+.timeline-entry__title { display: flex; justify-content: space-between; gap: 15px; }
+.timeline-entry__title strong { color: #273a32; font-size: .78rem; }
+.timeline-entry__title time { color: #74847d; font-size: .67rem; white-space: nowrap; }
+.timeline-entry__body > p { margin: 5px 0 7px; color: #61716a; font-size: .73rem; }
+.timeline-entry__meta { display: flex; flex-wrap: wrap; gap: 6px 14px; color: #8a9791; font-size: .63rem; }
+.timeline-reason { margin-top: 10px; padding: 9px 11px; border-left: 3px solid #c85b45; color: #883b2c; background: #fcede8; font-size: .7rem; }
+.timeline-message { margin: 0; padding: 18px; border-radius: 8px; color: #74817c; background: #f7f9f7; font-size: .75rem; text-align: center; }
+.timeline-message--error { color: #8a3828; background: #fae8e3; }
+.timeline-message button { margin-left: 8px; border: 0; padding: 0; color: inherit; background: transparent; font: inherit; font-weight: 750; text-decoration: underline; cursor: pointer; }
 .empty-state { padding: 42px; border: 1px dashed #ccd6d1; border-radius: 10px; color: #74817c; background: #fff; text-align: center; font-size: .82rem; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 1050px) { .metrics { grid-template-columns: repeat(2, 1fr); } .form-section { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .app-shell { display: block; } .sidebar { position: static; height: auto; padding: 16px; } .sidebar nav { display: flex; overflow-x: auto; } .brand { padding-bottom: 16px; } .sidebar-footer { display: none; } .content { padding: 0 18px 36px; } .operator div { display: none; } .intro { align-items: flex-start; gap: 18px; } }
-@media (max-width: 520px) { .metrics, .form-grid, .form-grid--three { grid-template-columns: 1fr; } .intro { display: grid; } .intro button { width: fit-content; } .form-actions { flex-direction: column-reverse; } .form-actions button { width: 100%; } }
+@media (max-width: 520px) { .metrics, .form-grid, .form-grid--three { grid-template-columns: 1fr; } .intro { display: grid; } .intro button { width: fit-content; } .form-actions { flex-direction: column-reverse; } .form-actions button { width: 100%; } .status-timeline__heading, .timeline-entry__title { display: grid; } .status-timeline__summary { justify-items: start; text-align: left; } }
