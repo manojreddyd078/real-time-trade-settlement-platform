@@ -1,5 +1,6 @@
 package com.tradesettlement.kafka;
 
+import com.tradesettlement.service.EventIdempotencyService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,11 +11,16 @@ import org.springframework.stereotype.Component;
 public class TradeEventConsumers {
 
     private static final Logger log = LoggerFactory.getLogger(TradeEventConsumers.class);
+    private final EventIdempotencyService idempotency;
+
+    public TradeEventConsumers(EventIdempotencyService idempotency) { this.idempotency = idempotency; }
 
     @KafkaListener(topics = {"${app.kafka.topics.trade-settlement}", "${app.kafka.topics.trade-status}"},
             groupId = "${app.kafka.consumer-groups.status}")
     public void consumeForStatus(TradeEvent event) {
-        log.info("trade_event_received stage=status eventId={} tradeId={}", event.getEventId(), event.getTradeId());
+        if (event == null) throw new IllegalArgumentException("Trade event payload cannot be null");
+        idempotency.processOnce(event, "trade-status", () ->
+                log.info("trade_event_received stage=status eventId={} tradeId={}", event.getEventId(), event.getTradeId()));
     }
 
     @KafkaListener(topics = "${app.kafka.topics.trade-dlq}", groupId = "${app.kafka.consumer-groups.dlq}")

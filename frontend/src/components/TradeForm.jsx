@@ -48,14 +48,14 @@ function TradeForm() {
       setValues(initialValues)
     } catch (error) {
       setErrors(error.fieldErrors || {})
-      setSubmission({ state: 'error', message: error.message, requestId: error.requestId })
+      setSubmission({ state: 'error', message: error.message, requestId: error.requestId, duplicate: error.code === 'DUPLICATE_TRADE' })
     }
   }
 
   return (
     <form className="trade-form" onSubmit={handleSubmit} noValidate>
       {submission.state === 'success' && <div className={`notice ${submission.result.status === TradeStatus.REJECTED ? 'notice--error' : submission.result.status === TradeStatus.VALIDATED ? 'notice--success' : 'notice--pending'}`} role="status"><strong>{submission.result.status === TradeStatus.REJECTED ? 'Trade rejected during validation' : submission.result.status === TradeStatus.VALIDATED ? 'Trade validated successfully' : 'Trade submitted — validation in progress'}</strong><span>Generated trade ID</span><code>{submission.result.id}</code><small>Status: {formatTradeStatus(submission.result.status)}</small></div>}
-      {submission.state === 'error' && <div className="notice notice--error" role="alert"><strong>Trade could not be submitted</strong><span>{submission.message}</span>{submission.requestId && <small>Request ID: {submission.requestId}</small>}</div>}
+      {submission.state === 'error' && <div className={`notice ${submission.duplicate ? 'notice--duplicate' : 'notice--error'}`} role="alert"><strong>{submission.duplicate ? 'Duplicate trade detected' : 'Trade could not be submitted'}</strong><span>{submission.message}</span>{submission.duplicate && <small>The existing trade was kept; no new trade or settlement activity was created.</small>}{submission.requestId && <small>Request ID: {submission.requestId}</small>}</div>}
       <section className="form-section"><div className="form-section-title"><span>01</span><div><h3>Trade details</h3><p>Core identifiers and transaction side</p></div></div><div className="form-grid">
         <Field label="Trade reference" name="tradeReference" value={values.tradeReference} onChange={update} error={errors.tradeReference} placeholder="TRD-2026-10001" />
         <Field label="External reference" name="externalReference" value={values.externalReference} onChange={update} error={errors.externalReference} placeholder="OMS-88421 (optional)" />

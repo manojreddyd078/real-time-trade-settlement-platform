@@ -13,6 +13,8 @@ public interface TradeRepository extends JpaRepository<Trade, UUID> {
 
     Optional<Trade> findByTradeReference(String tradeReference);
 
+    Optional<Trade> findByBusinessKey(String businessKey);
+
     List<Trade> findByStatusOrderByCreatedAtAsc(TradeStatus status);
 
     List<Trade> findBySettlementDateAndStatus(LocalDate settlementDate, TradeStatus status);

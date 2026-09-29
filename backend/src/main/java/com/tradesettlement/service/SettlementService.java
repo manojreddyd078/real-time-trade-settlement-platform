@@ -44,8 +44,7 @@ public class SettlementService {
         Trade trade = trades.findById(event.getTradeId())
                 .orElseThrow(() -> new TradeProcessingException("Trade was not found: " + event.getTradeId()));
         Settlement settlement = settlements.findByTradeId(trade.getId()).orElse(null);
-        if (settlement != null && (settlement.getStatus() == SettlementStatus.SETTLED
-                || settlement.getStatus() == SettlementStatus.FAILED)) {
+        if (settlement != null) {
             log.info("settlement_already_processed settlementId={} status={}", settlement.getId(), settlement.getStatus());
             return;
         }
@@ -88,7 +87,7 @@ public class SettlementService {
     private Settlement createSettlement(Trade trade) {
         Settlement value = new Settlement(); UUID id = UUID.randomUUID(); value.setId(id); value.setTradeId(trade.getId());
         value.setTradeReference(trade.getTradeReference());
-        value.setInstructionReference("STL-" + id); value.setStatus(SettlementStatus.PENDING);
+        value.setInstructionReference("STL-" + trade.getId()); value.setStatus(SettlementStatus.PENDING);
         BigDecimal quantity = trade.getQuantity() == null ? BigDecimal.ZERO : trade.getQuantity();
         BigDecimal price = trade.getPrice() == null ? BigDecimal.ZERO : trade.getPrice();
         value.setAmount(quantity.multiply(price)); value.setCurrencyCode(trade.getCurrencyCode());

@@ -39,6 +39,9 @@ public class Trade {
     @Column(name = "external_reference", length = 100)
     private String externalReference;
 
+    @Column(name = "business_key", nullable = false, unique = true, length = 128)
+    private String businessKey;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "trade_type", nullable = false, length = 16)
     private TradeType tradeType;
@@ -136,6 +139,9 @@ public class Trade {
     public void setExternalReference(String externalReference) {
         this.externalReference = externalReference;
     }
+
+    public String getBusinessKey() { return businessKey; }
+    public void setBusinessKey(String businessKey) { this.businessKey = businessKey; }
 
     public TradeType getTradeType() {
         return tradeType;

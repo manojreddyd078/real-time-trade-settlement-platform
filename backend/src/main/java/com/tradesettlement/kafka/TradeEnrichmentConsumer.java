@@ -1,6 +1,7 @@
 package com.tradesettlement.kafka;
 
 import com.tradesettlement.service.TradeEnrichmentService;
+import com.tradesettlement.service.EventIdempotencyService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,20 +13,25 @@ import org.springframework.stereotype.Component;
 public class TradeEnrichmentConsumer {
     private static final Logger log = LoggerFactory.getLogger(TradeEnrichmentConsumer.class);
     private final TradeEnrichmentService enrichmentService;
-    public TradeEnrichmentConsumer(TradeEnrichmentService enrichmentService) { this.enrichmentService = enrichmentService; }
+    private final EventIdempotencyService idempotency;
+    public TradeEnrichmentConsumer(TradeEnrichmentService enrichmentService, EventIdempotencyService idempotency) {
+        this.enrichmentService = enrichmentService; this.idempotency = idempotency;
+    }
 
     @KafkaListener(topics = "${app.kafka.topics.trade-validation}", groupId = "${app.kafka.consumer-groups.enrichment}")
     public void consume(ConsumerRecord<String, TradeEvent> record) {
         TradeEvent event = record.value();
         if (event == null) throw new IllegalArgumentException("Trade event payload cannot be null");
-        if (event.getEventType() == TradeEventType.VALIDATION_REJECTED) {
-            log.info("trade_enrichment_skipped reason=validation_rejected tradeId={}", event.getTradeId());
-            return;
-        }
         putContext(event);
         try {
             log.info("trade_enrichment_started topic={} partition={} offset={}", record.topic(), record.partition(), record.offset());
-            enrichmentService.enrich(event);
+            idempotency.processOnce(event, "trade-enrichment", () -> {
+                if (event.getEventType() == TradeEventType.VALIDATION_REJECTED) {
+                    log.info("trade_enrichment_skipped reason=validation_rejected tradeId={}", event.getTradeId());
+                    return;
+                }
+                enrichmentService.enrich(event);
+            });
         } catch (RuntimeException exception) {
             log.error("trade_enrichment_consumer_failed topic={} partition={} offset={}",
                     record.topic(), record.partition(), record.offset(), exception);

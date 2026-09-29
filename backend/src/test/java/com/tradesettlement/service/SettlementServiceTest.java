@@ -76,6 +76,17 @@ class SettlementServiceTest {
         verify(fixture.publisher, never()).publishEvent(org.mockito.ArgumentMatchers.any());
     }
 
+    @Test
+    void doesNotRepeatSettlementAlreadyInProgress() {
+        Fixture fixture = new Fixture(); Settlement existing = new Settlement(); existing.setStatus(SettlementStatus.PROCESSING);
+        existing.setId(UUID.randomUUID()); when(fixture.settlements.findByTradeId(fixture.trade.getId())).thenReturn(Optional.of(existing));
+
+        fixture.service.process(fixture.event);
+
+        verify(fixture.executor, never()).execute(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        verify(fixture.publisher, never()).publishEvent(org.mockito.ArgumentMatchers.any());
+    }
+
     private static class Fixture {
         final TradeRepository trades = mock(TradeRepository.class); final SettlementRepository settlements = mock(SettlementRepository.class);
         final SettlementExecutor executor = mock(SettlementExecutor.class); final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);

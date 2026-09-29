@@ -1,6 +1,7 @@
 package com.tradesettlement.kafka;
 
 import com.tradesettlement.service.TradeProcessingService;
+import com.tradesettlement.service.EventIdempotencyService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doAnswer;
 
 class TradeEventConsumerTest {
 
@@ -22,7 +24,8 @@ class TradeEventConsumerTest {
     @Test
     void delegatesTradeEventToProcessingService() {
         TradeProcessingService processingService = mock(TradeProcessingService.class);
-        TradeEventConsumer consumer = new TradeEventConsumer(processingService);
+        EventIdempotencyService idempotency = passThroughIdempotency();
+        TradeEventConsumer consumer = new TradeEventConsumer(processingService, idempotency);
         TradeEvent event = TradeEventSerializationTest.event(TradeEventType.TRADE_ACCEPTED);
         ConsumerRecord<String, TradeEvent> record =
                 new ConsumerRecord<>("trade-events", 1, 42L, event.getTradeId().toString(), event);
@@ -36,7 +39,7 @@ class TradeEventConsumerTest {
     @Test
     void propagatesProcessingFailureSoKafkaCanRetryAndRouteToDlq() {
         TradeProcessingService processingService = mock(TradeProcessingService.class);
-        TradeEventConsumer consumer = new TradeEventConsumer(processingService);
+        TradeEventConsumer consumer = new TradeEventConsumer(processingService, passThroughIdempotency());
         TradeEvent event = TradeEventSerializationTest.event(TradeEventType.TRADE_ACCEPTED);
         ConsumerRecord<String, TradeEvent> record =
                 new ConsumerRecord<>("trade-events", 0, 7L, event.getTradeId().toString(), event);
@@ -51,7 +54,7 @@ class TradeEventConsumerTest {
     @Test
     void rejectsNullPayload() {
         TradeProcessingService processingService = mock(TradeProcessingService.class);
-        TradeEventConsumer consumer = new TradeEventConsumer(processingService);
+        TradeEventConsumer consumer = new TradeEventConsumer(processingService, passThroughIdempotency());
         ConsumerRecord<String, TradeEvent> record = new ConsumerRecord<>("trade-events", 0, 1L, "key", null);
 
         assertThrows(IllegalArgumentException.class, () -> consumer.consume(record));
@@ -61,5 +64,12 @@ class TradeEventConsumerTest {
         assertNull(MDC.get("eventId"));
         assertNull(MDC.get("tradeId"));
         assertNull(MDC.get("correlationId"));
+    }
+
+    private EventIdempotencyService passThroughIdempotency() {
+        EventIdempotencyService service = mock(EventIdempotencyService.class);
+        doAnswer(invocation -> { invocation.<Runnable>getArgument(2).run(); return true; })
+                .when(service).processOnce(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
+        return service;
     }
 }

@@ -1,6 +1,7 @@
 package com.tradesettlement.kafka;
 
 import com.tradesettlement.service.TradeProcessingService;
+import com.tradesettlement.service.EventIdempotencyService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +15,11 @@ public class TradeEventConsumer {
     private static final Logger log = LoggerFactory.getLogger(TradeEventConsumer.class);
 
     private final TradeProcessingService processingService;
+    private final EventIdempotencyService idempotency;
 
-    public TradeEventConsumer(TradeProcessingService processingService) {
+    public TradeEventConsumer(TradeProcessingService processingService, EventIdempotencyService idempotency) {
         this.processingService = processingService;
+        this.idempotency = idempotency;
     }
 
     @KafkaListener(topics = "${app.kafka.topics.trade-events}", groupId = "${app.kafka.consumer-groups.validation}")
@@ -30,7 +33,7 @@ public class TradeEventConsumer {
         try {
             log.info("trade_event_processing_started topic={} partition={} offset={} eventType={}",
                     record.topic(), record.partition(), record.offset(), event.getEventType());
-            processingService.processAcceptedTrade(event);
+            idempotency.processOnce(event, "trade-validation", () -> processingService.processAcceptedTrade(event));
             log.info("trade_event_processing_completed topic={} partition={} offset={} eventType={}",
                     record.topic(), record.partition(), record.offset(), event.getEventType());
         } catch (RuntimeException exception) {

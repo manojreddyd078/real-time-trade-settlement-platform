@@ -80,6 +80,7 @@ td { padding: 16px 18px; border-top: 1px solid #edf0ee; font-size: .78rem; }
 .notice--success { color: #215c43; background: #e3f3ea; border: 1px solid #bbdfca; }
 .notice--pending { color: #705619; background: #fbf1d9; border: 1px solid #ead7a5; }
 .notice--error { color: #8a3828; background: #fae8e3; border: 1px solid #efc7bd; }
+.notice--duplicate { color: #70520f; background: #fff4d6; border: 1px solid #e8cf8c; }
 .notice code { width: fit-content; padding: 4px 7px; border-radius: 4px; background: rgba(255,255,255,.55); user-select: all; }
 .notice small { opacity: .78; }
 .details-card { border: 1px solid #dfe5e1; border-radius: 12px; background: #fff; box-shadow: 0 4px 16px rgba(23, 35, 31, .035); overflow: hidden; }

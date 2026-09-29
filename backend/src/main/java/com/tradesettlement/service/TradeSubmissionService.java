@@ -15,6 +15,7 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @Service
 public class TradeSubmissionService {
@@ -41,8 +42,20 @@ public class TradeSubmissionService {
                 throw new DuplicateTradeException(request.getTradeReference());
             }
 
+            String businessKey = TradeBusinessKey.from(request);
+            if (tradeRepository.findByBusinessKey(businessKey).isPresent()) {
+                log.info("duplicate_trade_detected type=business_key");
+                throw new DuplicateTradeException(request.getTradeReference(), "A trade with the same business details already exists");
+            }
+
             Trade trade = toEntity(request);
-            Trade savedTrade = tradeRepository.saveAndFlush(trade);
+            trade.setBusinessKey(businessKey);
+            Trade savedTrade;
+            try {
+                savedTrade = tradeRepository.saveAndFlush(trade);
+            } catch (DataIntegrityViolationException exception) {
+                throw new DuplicateTradeException(request.getTradeReference(), "A matching trade was submitted concurrently");
+            }
             MDC.put("tradeId", savedTrade.getId().toString());
             String correlationId = MDC.get("requestId");
             if (correlationId == null || correlationId.isBlank()) {
