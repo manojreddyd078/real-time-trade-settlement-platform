@@ -30,11 +30,13 @@ class EventIdempotencyServiceTest {
         Runnable handler = mock(Runnable.class);
         when(repository.claim(any(), anyString(), any(), anyString(), any())).thenReturn(1);
 
-        boolean processed = new EventIdempotencyService(repository, CLOCK).processOnce(event, "validation", handler);
+        EventRetryService retries = mock(EventRetryService.class);
+        boolean processed = new EventIdempotencyService(repository, CLOCK, retries).processOnce(event, "validation", handler);
 
         assertTrue(processed);
         verify(handler).run();
         verify(repository).complete(event.getEventId(), "validation", java.time.OffsetDateTime.now(CLOCK));
+        verify(retries).markRecovered(event.getEventId());
     }
 
     @Test
@@ -44,11 +46,13 @@ class EventIdempotencyServiceTest {
         Runnable handler = mock(Runnable.class);
         when(repository.claim(any(), anyString(), any(), anyString(), any())).thenReturn(0);
 
-        boolean processed = new EventIdempotencyService(repository, CLOCK).processOnce(event, "validation", handler);
+        EventRetryService retries = mock(EventRetryService.class);
+        boolean processed = new EventIdempotencyService(repository, CLOCK, retries).processOnce(event, "validation", handler);
 
         assertFalse(processed);
         verify(handler, never()).run();
         verify(repository, never()).complete(any(), anyString(), any());
+        verify(retries, never()).markRecovered(any());
     }
 
     @Test
@@ -57,10 +61,12 @@ class EventIdempotencyServiceTest {
         TradeEvent event = event();
         when(repository.claim(any(), anyString(), any(), anyString(), any())).thenReturn(1);
 
-        assertThrows(IllegalStateException.class, () -> new EventIdempotencyService(repository, CLOCK)
+        EventRetryService retries = mock(EventRetryService.class);
+        assertThrows(IllegalStateException.class, () -> new EventIdempotencyService(repository, CLOCK, retries)
                 .processOnce(event, "validation", () -> { throw new IllegalStateException("temporary failure"); }));
 
         verify(repository, never()).complete(any(), anyString(), any());
+        verify(retries, never()).markRecovered(any());
     }
 
     private TradeEvent event() {

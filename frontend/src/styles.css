@@ -120,6 +120,13 @@ td { padding: 16px 18px; border-top: 1px solid #edf0ee; font-size: .78rem; }
 .status-timeline__summary { min-width: 150px; display: grid; justify-items: end; gap: 4px; text-align: right; }
 .status-timeline__summary strong { margin-top: 4px; color: #26372f; font-size: .86rem; }
 .status-timeline__summary small { color: #819089; font-size: .63rem; }
+.retry-status { padding: 4px 7px; border-radius: 5px; color: #765818; background: #faefd2; font-size: .62rem; font-weight: 750; }
+.retry-status--recovered { color: #256448; background: #dff1e7; }
+.retry-status--exhausted { color: #9c402e; background: #f8e2dc; }
+.retry-banner { display: grid; gap: 4px; margin: -7px 0 20px; padding: 11px 13px; border-left: 3px solid #c99a35; color: #705619; background: #fbf1d9; font-size: .7rem; }
+.retry-banner--recovered { border-color: #4b9a72; color: #215c43; background: #e3f3ea; }
+.retry-banner--exhausted { border-color: #c85b45; color: #883b2c; background: #fcede8; }
+.retry-banner small { opacity: .82; }
 .timeline-list { margin: 0; padding: 0; list-style: none; }
 .timeline-entry { position: relative; display: grid; grid-template-columns: 18px 1fr; gap: 12px; padding-bottom: 22px; }
 .timeline-entry:last-child { padding-bottom: 0; }

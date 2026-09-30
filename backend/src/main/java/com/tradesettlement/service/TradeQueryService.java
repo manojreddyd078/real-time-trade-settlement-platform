@@ -7,6 +7,8 @@ import com.tradesettlement.dto.TradeDetailsResponse;
 import com.tradesettlement.dto.TradeLifecycleStatusResponse;
 import com.tradesettlement.dto.TradeStatusHistoryResponse;
 import com.tradesettlement.repository.TradeStatusHistoryRepository;
+import com.tradesettlement.repository.EventRetryAttemptRepository;
+import com.tradesettlement.dto.TradeRetryStatusResponse;
 import java.util.stream.Collectors;
 import com.tradesettlement.exception.TradeNotFoundException;
 import com.tradesettlement.repository.TradeRepository;
@@ -18,10 +20,13 @@ public class TradeQueryService {
 
     private final TradeRepository tradeRepository;
     private final TradeStatusHistoryRepository statusHistory;
+    private final EventRetryAttemptRepository retryAttempts;
 
-    public TradeQueryService(TradeRepository tradeRepository, TradeStatusHistoryRepository statusHistory) {
+    public TradeQueryService(TradeRepository tradeRepository, TradeStatusHistoryRepository statusHistory,
+                             EventRetryAttemptRepository retryAttempts) {
         this.tradeRepository = tradeRepository;
         this.statusHistory = statusHistory;
+        this.retryAttempts = retryAttempts;
     }
 
     @Transactional(readOnly = true)
@@ -44,6 +49,7 @@ public class TradeQueryService {
         java.util.List<TradeStatusHistoryResponse> history = statusHistory
                 .findByTradeIdOrderByChangedAtAscIdAsc(tradeId).stream()
                 .map(TradeStatusHistoryResponse::from).collect(Collectors.toList());
-        return new TradeLifecycleStatusResponse(trade, history);
+        return new TradeLifecycleStatusResponse(trade, history,
+                TradeRetryStatusResponse.from(retryAttempts.findByTradeIdOrderByLastAttemptAtDesc(tradeId)));
     }
 }

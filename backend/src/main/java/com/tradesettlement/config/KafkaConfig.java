@@ -11,6 +11,10 @@ import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.DeserializationException;
 import org.springframework.util.backoff.FixedBackOff;
+import org.springframework.dao.TransientDataAccessException;
+import org.springframework.kafka.KafkaException;
+import com.tradesettlement.kafka.KafkaRetryListener;
+import com.tradesettlement.service.EventRetryService;
 
 @Configuration
 public class KafkaConfig {
@@ -47,11 +51,19 @@ public class KafkaConfig {
 
     @Bean
     DefaultErrorHandler kafkaErrorHandler(KafkaTemplate<String, Object> kafkaTemplate,
-                                          @Value("${app.kafka.topics.trade-dlq}") String dlqTopic) {
+                                          EventRetryService retryService,
+                                          @Value("${app.kafka.topics.trade-dlq}") String dlqTopic,
+                                          @Value("${app.kafka.retry.delay-ms:1000}") long retryDelayMs,
+                                          @Value("${app.kafka.retry.max-retries:3}") int maxRetries) {
+        if (retryDelayMs < 0) throw new IllegalArgumentException("Kafka retry delay must not be negative");
+        if (maxRetries < 0) throw new IllegalArgumentException("Kafka retry limit must not be negative");
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
                 kafkaTemplate, (record, exception) -> new TopicPartition(dlqTopic, record.partition()));
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(1_000L, 2L));
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(retryDelayMs, maxRetries));
+        errorHandler.defaultFalse();
+        errorHandler.addRetryableExceptions(TransientDataAccessException.class, KafkaException.class);
         errorHandler.addNotRetryableExceptions(IllegalArgumentException.class, DeserializationException.class);
+        errorHandler.setRetryListeners(new KafkaRetryListener(retryService, maxRetries));
         return errorHandler;
     }
 

@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class EventIdempotencyService {
     private static final Logger log = LoggerFactory.getLogger(EventIdempotencyService.class);
-    private final ProcessedEventRepository processedEvents; private final Clock clock;
-    public EventIdempotencyService(ProcessedEventRepository processedEvents, Clock clock) {
-        this.processedEvents = processedEvents; this.clock = clock;
+    private final ProcessedEventRepository processedEvents; private final Clock clock; private final EventRetryService retries;
+    public EventIdempotencyService(ProcessedEventRepository processedEvents, Clock clock, EventRetryService retries) {
+        this.processedEvents = processedEvents; this.clock = clock; this.retries = retries;
     }
 
     @Transactional
@@ -29,6 +29,7 @@ public class EventIdempotencyService {
         }
         handler.run();
         processedEvents.complete(event.getEventId(), consumerName, OffsetDateTime.now(clock));
+        retries.markRecovered(event.getEventId());
         return true;
     }
 }

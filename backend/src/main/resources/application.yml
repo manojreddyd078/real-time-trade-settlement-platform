@@ -71,3 +71,6 @@ app:
       settlement: trade-settlement-service
       status: trade-status-service
       dlq: trade-dlq-monitor
+    retry:
+      max-retries: ${KAFKA_RETRY_MAX_RETRIES:3}
+      delay-ms: ${KAFKA_RETRY_DELAY_MS:1000}

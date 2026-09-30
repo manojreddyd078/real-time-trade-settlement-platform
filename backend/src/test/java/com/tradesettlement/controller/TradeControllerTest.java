@@ -116,6 +116,8 @@ class TradeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tradeId").value(tradeId.toString()))
                 .andExpect(jsonPath("$.currentStatus").value("ENRICHED"))
+                .andExpect(jsonPath("$.retry.status").value("NOT_RETRIED"))
+                .andExpect(jsonPath("$.retry.retryCount").value(0))
                 .andExpect(jsonPath("$.history").isArray());
     }
 

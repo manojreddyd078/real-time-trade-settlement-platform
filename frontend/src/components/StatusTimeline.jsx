@@ -21,17 +21,26 @@ function StatusTimeline({ tradeId, compact = false }) {
   const startedAt = history[0]?.changedAt
   const finishedAt = history.at(-1)?.changedAt
   const currentStatus = state.data?.currentStatus
+  const retry = state.data?.retry
   const active = currentStatus && !isExceptionStatus(currentStatus) && currentStatus !== 'SETTLED'
   const durationEnd = active ? new Date().toISOString() : finishedAt
+
+  useEffect(() => {
+    if (!active && retry?.status !== 'RETRYING') return undefined
+    const timer = window.setInterval(refresh, 5000)
+    return () => window.clearInterval(timer)
+  }, [active, refresh, retry?.status])
 
   return <section className={`status-timeline ${compact ? 'status-timeline--compact' : ''}`} aria-label="Trade status history">
     <div className="status-timeline__heading">
       <div><h3>Settlement timeline</h3><p>All recorded processing transitions</p></div>
       <div className="status-timeline__summary">
         {currentStatus && <span className={`trade-status trade-status--${currentStatus.toLowerCase()}`}>{formatTradeStatus(currentStatus)}</span>}
+        {retry?.retryCount > 0 && <span className={`retry-status retry-status--${retry.status.toLowerCase()}`}>{retry.status === 'RECOVERED' ? 'Recovered' : formatTradeStatus(retry.status)} · {retry.retryCount} {retry.retryCount === 1 ? 'retry' : 'retries'}</span>}
         <strong>{history.length ? formatDuration(startedAt, durationEnd) : '—'}</strong><small>Total processing time{active ? ' so far' : ''}</small>
       </div>
     </div>
+    {retry?.retryCount > 0 && <div className={`retry-banner retry-banner--${retry.status.toLowerCase()}`} role="status"><strong>Processing {retry.status === 'RETRYING' ? 'is retrying' : retry.status === 'EXHAUSTED' ? 'retries exhausted' : 'recovered after retry'}</strong><span>Retry count: {retry.retryCount}{retry.maxRetries ? ` · Configured limit per event: ${retry.maxRetries}` : ''}</span>{retry.lastFailure && <small>Last transient failure: {retry.lastFailure}{retry.lastAttemptAt ? ` · ${formatTimestamp(retry.lastAttemptAt)}` : ''}</small>}</div>}
     {state.loading && !state.data && <p className="timeline-message">Loading status history…</p>}
     {state.error && <div className="timeline-message timeline-message--error" role="alert">Unable to load status history: {state.error} <button type="button" onClick={refresh}>Retry</button></div>}
     {!state.loading && !state.error && !history.length && <p className="timeline-message">No status transitions have been recorded.</p>}
