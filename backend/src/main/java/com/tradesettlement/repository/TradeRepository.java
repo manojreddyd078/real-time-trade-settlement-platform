@@ -18,4 +18,6 @@ public interface TradeRepository extends JpaRepository<Trade, UUID> {
     List<Trade> findByStatusOrderByCreatedAtAsc(TradeStatus status);
 
     List<Trade> findBySettlementDateAndStatus(LocalDate settlementDate, TradeStatus status);
+
+    List<Trade> findByStatusInOrderByUpdatedAtDesc(List<TradeStatus> statuses);
 }

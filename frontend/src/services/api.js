@@ -78,3 +78,11 @@ export async function getSettlements() {
   if (!response.ok) throw new ApiError(body?.message || `Settlement status lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
   return body
 }
+
+export async function getFailedTrades() {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
+  const response = await fetch(`${apiBaseUrl}/api/failed-trades`)
+  const body = await response.json().catch(() => null)
+  if (!response.ok) throw new ApiError(body?.message || `Failed trades lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
+  return body
+}

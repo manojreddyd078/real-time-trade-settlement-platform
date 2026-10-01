@@ -1,6 +1,7 @@
 package com.tradesettlement.kafka;
 
 import com.tradesettlement.service.EventIdempotencyService;
+import com.tradesettlement.service.DeadLetterService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +13,11 @@ public class TradeEventConsumers {
 
     private static final Logger log = LoggerFactory.getLogger(TradeEventConsumers.class);
     private final EventIdempotencyService idempotency;
+    private final DeadLetterService deadLetters;
 
-    public TradeEventConsumers(EventIdempotencyService idempotency) { this.idempotency = idempotency; }
+    public TradeEventConsumers(EventIdempotencyService idempotency, DeadLetterService deadLetters) {
+        this.idempotency = idempotency; this.deadLetters = deadLetters;
+    }
 
     @KafkaListener(topics = {"${app.kafka.topics.trade-settlement}", "${app.kafka.topics.trade-status}"},
             groupId = "${app.kafka.consumer-groups.status}")
@@ -25,7 +29,9 @@ public class TradeEventConsumers {
 
     @KafkaListener(topics = "${app.kafka.topics.trade-dlq}", groupId = "${app.kafka.consumer-groups.dlq}")
     public void monitorDeadLetter(ConsumerRecord<String, Object> record) {
-        log.error("trade_event_dead_lettered key={} partition={} offset={} valueType={}",
+        com.tradesettlement.entity.DeadLetterEvent stored = deadLetters.store(record);
+        log.error("trade_event_dead_lettered deadLetterId={} key={} partition={} offset={} valueType={}",
+                stored == null ? null : stored.getId(),
                 record.key(), record.partition(), record.offset(),
                 record.value() == null ? "unavailable" : record.value().getClass().getName());
     }

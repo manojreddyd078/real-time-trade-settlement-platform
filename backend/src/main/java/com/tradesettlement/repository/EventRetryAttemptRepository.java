@@ -25,4 +25,5 @@ public interface EventRetryAttemptRepository extends JpaRepository<EventRetryAtt
     int updateStatus(@Param("eventId") UUID eventId, @Param("status") String status);
 
     List<EventRetryAttempt> findByTradeIdOrderByLastAttemptAtDesc(UUID tradeId);
+    List<EventRetryAttempt> findByEventIdOrderByLastAttemptAtDesc(UUID eventId);
 }

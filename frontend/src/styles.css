@@ -145,7 +145,23 @@ td { padding: 16px 18px; border-top: 1px solid #edf0ee; font-size: .78rem; }
 .timeline-message--error { color: #8a3828; background: #fae8e3; }
 .timeline-message button { margin-left: 8px; border: 0; padding: 0; color: inherit; background: transparent; font: inherit; font-weight: 750; text-decoration: underline; cursor: pointer; }
 .empty-state { padding: 42px; border: 1px dashed #ccd6d1; border-radius: 10px; color: #74817c; background: #fff; text-align: center; font-size: .82rem; }
+.failures-page { padding-bottom: 50px; }
+.failure-list { display: grid; gap: 14px; }
+.failure-card { padding: 20px 22px; border: 1px solid #ead8d2; border-radius: 11px; background: #fff; box-shadow: 0 4px 16px rgba(62, 30, 22, .04); }
+.failure-card__heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.failure-card__heading > div:first-child { display: grid; gap: 4px; }
+.failure-card__heading > div:first-child span { color: #783d30; font-size: .82rem; font-weight: 800; }
+.failure-card__heading small { color: #7d8984; font-size: .68rem; }
+.failure-badges { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.dlq-status { padding: 5px 8px; border-radius: 5px; color: #6b625d; background: #eeeae8; font-size: .65rem; font-weight: 750; }
+.dlq-status--routed { color: #923d2e; background: #f8dfd8; }
+.failure-reason { display: grid; gap: 5px; margin: 16px 0; padding: 11px 13px; border-left: 3px solid #c85b45; color: #783d30; background: #fdf0ec; font-size: .74rem; }
+.failure-reason strong { font-size: .66rem; letter-spacing: .04em; text-transform: uppercase; }
+.failure-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; padding-top: 15px; border-top: 1px solid #eee9e6; }
+.failure-grid div { min-width: 0; display: grid; gap: 5px; }
+.failure-grid span { color: #87918d; font-size: .63rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.failure-grid strong { color: #35433d; font-size: .72rem; overflow-wrap: anywhere; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 1050px) { .metrics { grid-template-columns: repeat(2, 1fr); } .form-section { grid-template-columns: 1fr; } }
-@media (max-width: 760px) { .app-shell { display: block; } .sidebar { position: static; height: auto; padding: 16px; } .sidebar nav { display: flex; overflow-x: auto; } .brand { padding-bottom: 16px; } .sidebar-footer { display: none; } .content { padding: 0 18px 36px; } .operator div { display: none; } .intro { align-items: flex-start; gap: 18px; } }
-@media (max-width: 520px) { .metrics, .form-grid, .form-grid--three { grid-template-columns: 1fr; } .intro { display: grid; } .intro button { width: fit-content; } .form-actions { flex-direction: column-reverse; } .form-actions button { width: 100%; } .status-timeline__heading, .timeline-entry__title { display: grid; } .status-timeline__summary { justify-items: start; text-align: left; } }
+@media (max-width: 760px) { .app-shell { display: block; } .sidebar { position: static; height: auto; padding: 16px; } .sidebar nav { display: flex; overflow-x: auto; } .brand { padding-bottom: 16px; } .sidebar-footer { display: none; } .content { padding: 0 18px 36px; } .operator div { display: none; } .intro { align-items: flex-start; gap: 18px; } .failure-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .metrics, .form-grid, .form-grid--three, .failure-grid { grid-template-columns: 1fr; } .intro, .failure-card__heading { display: grid; } .intro button { width: fit-content; } .form-actions { flex-direction: column-reverse; } .form-actions button { width: 100%; } .status-timeline__heading, .timeline-entry__title { display: grid; } .status-timeline__summary { justify-items: start; text-align: left; } .failure-badges { justify-content: flex-start; } }

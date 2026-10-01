@@ -59,6 +59,9 @@ public class KafkaConfig {
         if (maxRetries < 0) throw new IllegalArgumentException("Kafka retry limit must not be negative");
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
                 kafkaTemplate, (record, exception) -> new TopicPartition(dlqTopic, record.partition()));
+        recoverer.setAppendOriginalHeaders(true);
+        recoverer.setStripPreviousExceptionHeaders(false);
+        recoverer.setFailIfSendResultIsError(true);
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(retryDelayMs, maxRetries));
         errorHandler.defaultFalse();
         errorHandler.addRetryableExceptions(TransientDataAccessException.class, KafkaException.class);
