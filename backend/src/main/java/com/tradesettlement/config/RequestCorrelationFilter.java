@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class RequestCorrelationFilter extends OncePerRequestFilter {
 
     public static final String REQUEST_ID_HEADER = "X-Request-Id";
+    public static final String CORRELATION_ID_HEADER = "X-Correlation-Id";
     private static final Logger log = LoggerFactory.getLogger(RequestCorrelationFilter.class);
 
     @Override
@@ -27,9 +28,16 @@ public class RequestCorrelationFilter extends OncePerRequestFilter {
         if (requestId == null || requestId.isBlank() || requestId.length() > 100) {
             requestId = UUID.randomUUID().toString();
         }
+        String correlationId = request.getHeader(CORRELATION_ID_HEADER);
+        if (correlationId == null || correlationId.isBlank() || correlationId.length() > 100
+                || !correlationId.matches("^[A-Za-z0-9._-]+$")) {
+            correlationId = requestId;
+        }
 
         MDC.put("requestId", requestId);
+        MDC.put("correlationId", correlationId);
         response.setHeader(REQUEST_ID_HEADER, requestId);
+        response.setHeader(CORRELATION_ID_HEADER, correlationId);
         long startedAt = System.nanoTime();
         try {
             log.info("http_request_started method={} path={}", request.getMethod(), request.getRequestURI());

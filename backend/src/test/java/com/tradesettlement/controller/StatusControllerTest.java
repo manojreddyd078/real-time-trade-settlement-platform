@@ -8,6 +8,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 @WebMvcTest(StatusController.class)
 class StatusControllerTest {
@@ -17,8 +18,10 @@ class StatusControllerTest {
 
     @Test
     void returnsBackendStatus() throws Exception {
-        mockMvc.perform(get("/api/status"))
+        mockMvc.perform(get("/api/status").header("X-Correlation-Id", "trace-correlation-123"))
                 .andExpect(status().isOk())
+                .andExpect(header().string("X-Correlation-Id", "trace-correlation-123"))
+                .andExpect(header().exists("X-Request-Id"))
                 .andExpect(jsonPath("$.status").value("UP"))
                 .andExpect(jsonPath("$.service").value("trade-settlement-backend"));
     }

@@ -18,6 +18,8 @@ public class ProcessedEvent {
     @Id @Column(name = "consumer_name", nullable = false, length = 100) private String consumerName;
     @Column(name = "trade_id") private UUID tradeId;
     @Column(name = "event_type", nullable = false, length = 50) private String eventType;
+    @Column(name = "correlation_id", length = 100) private String correlationId;
+    @Column(name = "event_occurred_at") private OffsetDateTime eventOccurredAt;
     @Column(nullable = false, length = 20) private String status;
     @Column(name = "received_at", nullable = false) private OffsetDateTime receivedAt;
     @Column(name = "processed_at") private OffsetDateTime processedAt;
@@ -26,6 +28,8 @@ public class ProcessedEvent {
     public String getConsumerName() { return consumerName; }
     public UUID getTradeId() { return tradeId; }
     public String getEventType() { return eventType; }
+    public String getCorrelationId() { return correlationId; }
+    public OffsetDateTime getEventOccurredAt() { return eventOccurredAt; }
     public String getStatus() { return status; }
     public OffsetDateTime getReceivedAt() { return receivedAt; }
     public OffsetDateTime getProcessedAt() { return processedAt; }

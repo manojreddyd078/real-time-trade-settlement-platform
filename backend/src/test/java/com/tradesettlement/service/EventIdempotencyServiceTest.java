@@ -28,7 +28,7 @@ class EventIdempotencyServiceTest {
         ProcessedEventRepository repository = mock(ProcessedEventRepository.class);
         TradeEvent event = event();
         Runnable handler = mock(Runnable.class);
-        when(repository.claim(any(), anyString(), any(), anyString(), any())).thenReturn(1);
+        when(repository.claim(any(), anyString(), any(), anyString(), anyString(), any(), any())).thenReturn(1);
 
         EventRetryService retries = mock(EventRetryService.class);
         boolean processed = new EventIdempotencyService(repository, CLOCK, retries).processOnce(event, "validation", handler);
@@ -44,7 +44,7 @@ class EventIdempotencyServiceTest {
         ProcessedEventRepository repository = mock(ProcessedEventRepository.class);
         TradeEvent event = event();
         Runnable handler = mock(Runnable.class);
-        when(repository.claim(any(), anyString(), any(), anyString(), any())).thenReturn(0);
+        when(repository.claim(any(), anyString(), any(), anyString(), anyString(), any(), any())).thenReturn(0);
 
         EventRetryService retries = mock(EventRetryService.class);
         boolean processed = new EventIdempotencyService(repository, CLOCK, retries).processOnce(event, "validation", handler);
@@ -59,7 +59,7 @@ class EventIdempotencyServiceTest {
     void doesNotCompleteFailedHandlerSoTransactionCanRetry() {
         ProcessedEventRepository repository = mock(ProcessedEventRepository.class);
         TradeEvent event = event();
-        when(repository.claim(any(), anyString(), any(), anyString(), any())).thenReturn(1);
+        when(repository.claim(any(), anyString(), any(), anyString(), anyString(), any(), any())).thenReturn(1);
 
         EventRetryService retries = mock(EventRetryService.class);
         assertThrows(IllegalStateException.class, () -> new EventIdempotencyService(repository, CLOCK, retries)

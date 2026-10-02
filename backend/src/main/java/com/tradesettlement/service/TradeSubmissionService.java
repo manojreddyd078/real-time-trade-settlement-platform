@@ -57,7 +57,7 @@ public class TradeSubmissionService {
                 throw new DuplicateTradeException(request.getTradeReference(), "A matching trade was submitted concurrently");
             }
             MDC.put("tradeId", savedTrade.getId().toString());
-            String correlationId = MDC.get("requestId");
+            String correlationId = MDC.get("correlationId");
             if (correlationId == null || correlationId.isBlank()) {
                 correlationId = UUID.randomUUID().toString();
             }

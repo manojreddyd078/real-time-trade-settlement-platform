@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface DeadLetterEventRepository extends JpaRepository<DeadLetterEvent, UUID> {
     List<DeadLetterEvent> findAllByOrderByReceivedAtDesc();
     Optional<DeadLetterEvent> findFirstByTradeIdOrderByReceivedAtDesc(UUID tradeId);
+    List<DeadLetterEvent> findByTradeIdOrderByReceivedAtAsc(UUID tradeId);
     boolean existsByOriginalTopicAndOriginalPartitionAndOriginalOffsetAndOriginalConsumerGroup(
             String topic, int partition, long offset, String consumerGroup);
     Optional<DeadLetterEvent> findByOriginalTopicAndOriginalPartitionAndOriginalOffsetAndOriginalConsumerGroup(

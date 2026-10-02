@@ -22,7 +22,7 @@ public class EventIdempotencyService {
         if (event.getEventId() == null) throw new IllegalArgumentException("Event ID is required for idempotent processing");
         if (event.getEventType() == null) throw new IllegalArgumentException("Event type is required for idempotent processing");
         int claimed = processedEvents.claim(event.getEventId(), consumerName, event.getTradeId(),
-                event.getEventType().name(), OffsetDateTime.now(clock));
+                event.getEventType().name(), event.getCorrelationId(), event.getOccurredAt(), OffsetDateTime.now(clock));
         if (claimed == 0) {
             log.info("duplicate_event_skipped consumer={} eventId={} tradeId={}", consumerName, event.getEventId(), event.getTradeId());
             return false;

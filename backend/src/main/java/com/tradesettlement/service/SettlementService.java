@@ -54,7 +54,7 @@ public class SettlementService {
         }
 
         if (settlement == null) {
-            settlement = createSettlement(trade);
+            settlement = createSettlement(trade, event.getCorrelationId());
             settlements.saveAndFlush(settlement);
         }
         settlement.setStatus(SettlementStatus.PROCESSING);
@@ -84,13 +84,14 @@ public class SettlementService {
         }
     }
 
-    private Settlement createSettlement(Trade trade) {
+    private Settlement createSettlement(Trade trade, String correlationId) {
         Settlement value = new Settlement(); UUID id = UUID.randomUUID(); value.setId(id); value.setTradeId(trade.getId());
         value.setTradeReference(trade.getTradeReference());
         value.setInstructionReference("STL-" + trade.getId()); value.setStatus(SettlementStatus.PENDING);
         BigDecimal quantity = trade.getQuantity() == null ? BigDecimal.ZERO : trade.getQuantity();
         BigDecimal price = trade.getPrice() == null ? BigDecimal.ZERO : trade.getPrice();
         value.setAmount(quantity.multiply(price)); value.setCurrencyCode(trade.getCurrencyCode());
+        value.setCorrelationId(correlationId);
         value.setRequestedAt(OffsetDateTime.now(clock)); return value;
     }
 

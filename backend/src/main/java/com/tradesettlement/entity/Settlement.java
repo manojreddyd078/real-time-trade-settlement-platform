@@ -24,6 +24,7 @@ public class Settlement {
     @Column(name = "requested_at", nullable = false) private OffsetDateTime requestedAt;
     @Column(name = "settled_at") private OffsetDateTime settledAt;
     @Column(name = "failure_reason", length = 1000) private String failureReason;
+    @Column(name = "correlation_id", length = 100) private String correlationId;
     @Version @Column(nullable = false) private long version;
 
     public UUID getId() { return id; } public void setId(UUID id) { this.id = id; }
@@ -37,5 +38,6 @@ public class Settlement {
     public OffsetDateTime getRequestedAt() { return requestedAt; } public void setRequestedAt(OffsetDateTime value) { this.requestedAt = value; }
     public OffsetDateTime getSettledAt() { return settledAt; } public void setSettledAt(OffsetDateTime value) { this.settledAt = value; }
     public String getFailureReason() { return failureReason; } public void setFailureReason(String value) { this.failureReason = value; }
+    public String getCorrelationId() { return correlationId; } public void setCorrelationId(String value) { this.correlationId = value; }
     public long getVersion() { return version; }
 }

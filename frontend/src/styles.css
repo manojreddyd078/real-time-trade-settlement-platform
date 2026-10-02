@@ -161,7 +161,43 @@ td { padding: 16px 18px; border-top: 1px solid #edf0ee; font-size: .78rem; }
 .failure-grid div { min-width: 0; display: grid; gap: 5px; }
 .failure-grid span { color: #87918d; font-size: .63rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
 .failure-grid strong { color: #35433d; font-size: .72rem; overflow-wrap: anywhere; }
+.trace-page { max-width: 1050px; padding-bottom: 50px; }
+.trace-search { display: flex; gap: 10px; margin-bottom: 22px; padding: 17px; border: 1px solid #dfe5e1; border-radius: 10px; background: #fff; }
+.trace-search label { display: grid; flex: 1; gap: 6px; color: #65756e; font-size: .68rem; font-weight: 750; text-transform: uppercase; }
+.trace-search input { width: 100%; height: 40px; border: 1px solid #ccd6d1; border-radius: 7px; padding: 0 11px; color: #1d2b26; outline: none; }
+.trace-search input:focus { border-color: #2b8060; box-shadow: 0 0 0 3px rgba(43, 128, 96, .12); }
+.trace-search button { align-self: end; height: 40px; border: 0; border-radius: 7px; padding: 0 17px; color: #fff; background: #176b4c; font-weight: 750; cursor: pointer; }
+.trace-search button:disabled { opacity: .58; cursor: wait; }
+.trace-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+.trace-summary div { display: grid; gap: 6px; padding: 16px; border: 1px solid #dfe5e1; border-radius: 9px; background: #fff; }
+.trace-summary span, .trace-identifiers strong { color: #819089; font-size: .64rem; letter-spacing: .04em; text-transform: uppercase; }
+.trace-summary strong { color: #293b34; font-size: .84rem; }
+.trace-identifiers { display: grid; gap: 13px; margin-bottom: 18px; padding: 18px; border: 1px solid #dfe5e1; border-radius: 9px; background: #fff; }
+.trace-identifiers > div { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: start; }
+.trace-identifiers > div > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.trace-identifiers code { width: fit-content; padding: 4px 7px; border-radius: 4px; color: #365249; background: #edf3ef; font-size: .66rem; overflow-wrap: anywhere; }
+.trace-identifiers span { color: #819089; font-size: .7rem; }
+.trace-timeline { margin: 0; padding: 21px 22px; border: 1px solid #dfe5e1; border-radius: 11px; background: #fff; list-style: none; }
+.trace-entry { position: relative; display: grid; grid-template-columns: 18px 1fr; gap: 13px; padding-bottom: 25px; }
+.trace-entry:last-child { padding-bottom: 0; }
+.trace-entry::before { content: ''; position: absolute; top: 14px; bottom: -2px; left: 6px; width: 2px; background: #dce7e1; }
+.trace-entry:last-child::before { display: none; }
+.trace-entry__marker { position: relative; z-index: 1; width: 14px; height: 14px; margin-top: 2px; border: 3px solid #d6eee2; border-radius: 50%; background: #25825f; }
+.trace-entry--retry .trace-entry__marker { border-color: #f0dfb2; background: #b98a27; }
+.trace-entry--dlq .trace-entry__marker { border-color: #f4d1c8; background: #bf513b; }
+.trace-entry--settlement .trace-entry__marker { border-color: #d8e1f4; background: #5578b8; }
+.trace-entry__heading { display: flex; justify-content: space-between; gap: 16px; }
+.trace-entry__heading > div { display: flex; align-items: center; gap: 8px; }
+.trace-entry__heading strong { font-size: .78rem; }
+.trace-entry__heading time { color: #788780; font-size: .66rem; white-space: nowrap; }
+.trace-category { padding: 3px 6px; border-radius: 4px; color: #52655d; background: #edf1ef; font-size: .58rem; font-weight: 800; letter-spacing: .05em; }
+.trace-entry__content > p { margin: 6px 0; color: #53655d; font-size: .74rem; }
+.trace-entry__ids { display: flex; flex-wrap: wrap; gap: 6px 14px; color: #88958f; font-size: .62rem; }
+.trace-entry dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 11px 0 0; }
+.trace-entry dl div { min-width: 0; padding: 8px 9px; border-radius: 6px; background: #f7f9f7; }
+.trace-entry dt { color: #84918b; font-size: .57rem; text-transform: uppercase; }
+.trace-entry dd { margin: 4px 0 0; color: #34443d; font-size: .65rem; overflow-wrap: anywhere; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 1050px) { .metrics { grid-template-columns: repeat(2, 1fr); } .form-section { grid-template-columns: 1fr; } }
-@media (max-width: 760px) { .app-shell { display: block; } .sidebar { position: static; height: auto; padding: 16px; } .sidebar nav { display: flex; overflow-x: auto; } .brand { padding-bottom: 16px; } .sidebar-footer { display: none; } .content { padding: 0 18px 36px; } .operator div { display: none; } .intro { align-items: flex-start; gap: 18px; } .failure-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px) { .metrics, .form-grid, .form-grid--three, .failure-grid { grid-template-columns: 1fr; } .intro, .failure-card__heading { display: grid; } .intro button { width: fit-content; } .form-actions { flex-direction: column-reverse; } .form-actions button { width: 100%; } .status-timeline__heading, .timeline-entry__title { display: grid; } .status-timeline__summary { justify-items: start; text-align: left; } .failure-badges { justify-content: flex-start; } }
+@media (max-width: 760px) { .app-shell { display: block; } .sidebar { position: static; height: auto; padding: 16px; } .sidebar nav { display: flex; overflow-x: auto; } .brand { padding-bottom: 16px; } .sidebar-footer { display: none; } .content { padding: 0 18px 36px; } .operator div { display: none; } .intro { align-items: flex-start; gap: 18px; } .failure-grid, .trace-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .trace-entry dl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .metrics, .form-grid, .form-grid--three, .failure-grid, .trace-summary, .trace-entry dl { grid-template-columns: 1fr; } .intro, .failure-card__heading, .trace-entry__heading { display: grid; } .intro button { width: fit-content; } .form-actions { flex-direction: column-reverse; } .form-actions button { width: 100%; } .status-timeline__heading, .timeline-entry__title { display: grid; } .status-timeline__summary { justify-items: start; text-align: left; } .failure-badges { justify-content: flex-start; } .trace-search { display: grid; } .trace-identifiers > div { grid-template-columns: 1fr; } }
