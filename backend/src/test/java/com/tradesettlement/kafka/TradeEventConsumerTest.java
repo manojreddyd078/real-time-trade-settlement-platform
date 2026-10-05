@@ -13,6 +13,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.when;
 
 class TradeEventConsumerTest {
 
@@ -58,6 +60,22 @@ class TradeEventConsumerTest {
         ConsumerRecord<String, TradeEvent> record = new ConsumerRecord<>("trade-events", 0, 1L, "key", null);
 
         assertThrows(IllegalArgumentException.class, () -> consumer.consume(record));
+    }
+
+    @Test
+    void doesNotProcessAnEventAlreadyClaimedByTheConsumerGroup() {
+        TradeProcessingService processingService = mock(TradeProcessingService.class);
+        EventIdempotencyService idempotency = mock(EventIdempotencyService.class);
+        TradeEvent event = TradeEventSerializationTest.event(TradeEventType.TRADE_ACCEPTED);
+        when(idempotency.processOnce(org.mockito.ArgumentMatchers.eq(event),
+                org.mockito.ArgumentMatchers.eq("trade-validation"), org.mockito.ArgumentMatchers.any()))
+                .thenReturn(false);
+
+        new TradeEventConsumer(processingService, idempotency).consume(
+                new ConsumerRecord<>("trade-events", 0, 8L, event.getTradeId().toString(), event));
+
+        verify(processingService, never()).processAcceptedTrade(event);
+        assertEventContextCleared();
     }
 
     private void assertEventContextCleared() {

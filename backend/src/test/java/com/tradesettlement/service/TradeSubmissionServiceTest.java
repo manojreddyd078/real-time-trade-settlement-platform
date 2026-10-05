@@ -10,6 +10,7 @@ import com.tradesettlement.exception.DuplicateTradeException;
 import com.tradesettlement.repository.TradeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -19,6 +20,36 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class TradeSubmissionServiceTest {
+    @Test
+    void convertsConcurrentDatabaseConstraintFailureToDuplicateTrade() {
+        TradeRepository trades = mock(TradeRepository.class);
+        when(trades.findByTradeReference("TRD-NEW")).thenReturn(Optional.empty());
+        when(trades.findByBusinessKey(anyString())).thenReturn(Optional.empty());
+        when(trades.saveAndFlush(org.mockito.ArgumentMatchers.any()))
+                .thenThrow(new DataIntegrityViolationException("unique constraint"));
+        ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
+        TradeStatusLifecycleService lifecycle = mock(TradeStatusLifecycleService.class);
+
+        TradeSubmissionService service = new TradeSubmissionService(trades, publisher, lifecycle);
+
+        assertThrows(DuplicateTradeException.class, () -> service.submit(request()));
+        verify(publisher, never()).publishEvent(org.mockito.ArgumentMatchers.any());
+        verify(lifecycle, never()).recordInitial(org.mockito.ArgumentMatchers.any(), anyString());
+    }
+
+    @Test
+    void propagatesUnexpectedDatabaseFailureWithoutPublishingAnEvent() {
+        TradeRepository trades = mock(TradeRepository.class);
+        when(trades.findByTradeReference("TRD-NEW")).thenThrow(new IllegalStateException("database offline"));
+        ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
+
+        TradeSubmissionService service = new TradeSubmissionService(trades, publisher,
+                mock(TradeStatusLifecycleService.class));
+
+        assertThrows(IllegalStateException.class, () -> service.submit(request()));
+        verify(publisher, never()).publishEvent(org.mockito.ArgumentMatchers.any());
+    }
+
     @Test
     void rejectsSameBusinessTradeWithDifferentTradeReference() {
         TradeRepository trades = mock(TradeRepository.class);

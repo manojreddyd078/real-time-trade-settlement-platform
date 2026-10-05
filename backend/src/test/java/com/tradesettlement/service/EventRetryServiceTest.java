@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 
 class EventRetryServiceTest {
     private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-09-30T15:00:00Z"), ZoneOffset.UTC);
@@ -33,5 +34,24 @@ class EventRetryServiceTest {
         service.markExhausted(eventId); service.markRecovered(eventId);
         verify(attempts).updateStatus(eventId, "EXHAUSTED");
         verify(attempts).updateStatus(eventId, "RECOVERED");
+    }
+
+    @Test
+    void ignoresRetryUpdatesWithoutAnEventId() {
+        EventRetryAttemptRepository attempts = mock(EventRetryAttemptRepository.class);
+        EventRetryService service = new EventRetryService(attempts, CLOCK);
+
+        service.recordFailure(null, "group:topic", UUID.randomUUID(), "topic", 1, 3,
+                new RuntimeException("failure"));
+        service.markExhausted(null);
+        service.markRecovered(null);
+
+        verify(attempts, never()).recordFailure(org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyInt(),
+                org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.any());
+        verify(attempts, never()).updateStatus(org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.anyString());
     }
 }
