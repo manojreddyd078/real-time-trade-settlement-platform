@@ -18,19 +18,20 @@ class TradeEventSerializationTest {
     void roundTripsTypedJsonEvent() {
         TradeEvent source = event(TradeEventType.TRADE_ACCEPTED);
         RecordHeaders headers = new RecordHeaders();
-        JsonSerializer<TradeEvent> serializer = new JsonSerializer<>();
-        JsonDeserializer<TradeEvent> deserializer = new JsonDeserializer<>(TradeEvent.class);
-        deserializer.addTrustedPackages("com.tradesettlement.kafka");
+        try (JsonSerializer<TradeEvent> serializer = new JsonSerializer<>();
+             JsonDeserializer<TradeEvent> deserializer = new JsonDeserializer<>(TradeEvent.class)) {
+            deserializer.addTrustedPackages("com.tradesettlement.kafka");
 
-        byte[] payload = serializer.serialize("trade-events", headers, source);
-        TradeEvent result = deserializer.deserialize("trade-events", headers, payload);
+            byte[] payload = serializer.serialize("trade-events", headers, source);
+            TradeEvent result = deserializer.deserialize("trade-events", headers, payload);
 
-        assertEquals(source.getEventId(), result.getEventId());
-        assertEquals(source.getTradeId(), result.getTradeId());
-        assertEquals(TradeEventType.TRADE_ACCEPTED, result.getEventType());
-        assertEquals(TradeStatus.RECEIVED, result.getStatus());
-        assertEquals("request-123", result.getCorrelationId());
-        assertEquals(OffsetDateTime.parse("2026-09-17T14:00:00Z"), result.getOccurredAt());
+            assertEquals(source.getEventId(), result.getEventId());
+            assertEquals(source.getTradeId(), result.getTradeId());
+            assertEquals(TradeEventType.TRADE_ACCEPTED, result.getEventType());
+            assertEquals(TradeStatus.RECEIVED, result.getStatus());
+            assertEquals("request-123", result.getCorrelationId());
+            assertEquals(OffsetDateTime.parse("2026-09-17T14:00:00Z"), result.getOccurredAt());
+        }
     }
 
     static TradeEvent event(TradeEventType type) {

@@ -13,7 +13,6 @@ import com.tradesettlement.repository.CounterpartyRepository;
 import com.tradesettlement.repository.InstrumentRepository;
 import com.tradesettlement.repository.TradeRepository;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,7 +60,7 @@ class TradeEnrichmentServiceTest {
         final Trade trade = trade();
         final TradeEvent event = new TradeEvent(UUID.randomUUID(), trade.getId(), trade.getTradeReference(), trade.getTradeType(), TradeStatus.VALIDATED, TradeEventType.VALIDATION_COMPLETED, java.time.OffsetDateTime.now(), "correlation-123");
         Fixture() { when(trades.findById(trade.getId())).thenReturn(Optional.of(trade)); }
-        TradeEvent published() { ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class); verify(publisher).publishEvent(captor.capture()); return (TradeEvent) captor.getValue(); }
+        TradeEvent published() { org.mockito.ArgumentCaptor<Object> captor = org.mockito.ArgumentCaptor.forClass(Object.class); verify(publisher).publishEvent(captor.capture()); return (TradeEvent) captor.getValue(); }
         private static Trade trade() { Trade v = new Trade(); ReflectionTestUtils.setField(v, "id", UUID.randomUUID()); v.setTradeReference("TRD-1"); v.setTradeType(TradeType.BUY); v.setStatus(TradeStatus.VALIDATED); v.setInstrumentId(UUID.randomUUID()); v.setBuyerCounterpartyId(UUID.randomUUID()); v.setSellerCounterpartyId(UUID.randomUUID()); return v; }
     }
 }

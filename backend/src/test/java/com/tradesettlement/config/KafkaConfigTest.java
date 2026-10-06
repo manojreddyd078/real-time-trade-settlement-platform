@@ -35,11 +35,16 @@ class KafkaConfigTest {
     @Test
     void rejectsInvalidRetryConfiguration() {
         KafkaConfig config = new KafkaConfig();
-        KafkaTemplate<String, Object> template = mock(KafkaTemplate.class);
+        KafkaTemplate<String, Object> template = kafkaTemplate();
         EventRetryService retries = mock(EventRetryService.class);
         assertThrows(IllegalArgumentException.class,
                 () -> config.kafkaErrorHandler(template, retries, "trade-dlq", -1, 3));
         assertThrows(IllegalArgumentException.class,
                 () -> config.kafkaErrorHandler(template, retries, "trade-dlq", 1000, -1));
+    }
+
+    @SuppressWarnings("unchecked")
+    private KafkaTemplate<String, Object> kafkaTemplate() {
+        return (KafkaTemplate<String, Object>) mock(KafkaTemplate.class);
     }
 }
