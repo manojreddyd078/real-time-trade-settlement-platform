@@ -52,3 +52,8 @@ spark/data/*.csv
 spark/data/*.json
 spark/data/*.parquet
 !spark/data/.gitkeep
+spark/.venv/
+spark/output/
+spark/spark-warehouse/
+spark/metastore_db/
+spark/derby.log
