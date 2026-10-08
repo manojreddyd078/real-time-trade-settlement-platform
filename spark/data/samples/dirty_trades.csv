@@ -1,0 +1,8 @@
+trade_id,instrument_code,quantity,price,currency,trade_date,settlement_date
+ trd-clean-001 , aapl ,100,25.50, usd ,2026-10-08,2026-10-09
+TRD-CLEAN-002,UST-10Y,50,0,EUR,2026-10-08,2026-10-08
+,AAPL,10,25,USD,2026-10-08,2026-10-09
+TRD-BAD-004,,10,25,USD,2026-10-08,2026-10-09
+TRD-BAD-005,AAPL,abc,,USD,2026-10-08,2026-10-09
+TRD-BAD-006,AAPL,-10,25,xyz,not-a-date,2026-10-09
+TRD-BAD-007,AAPL,10,25,USD,2026-10-08,2026-10-07
