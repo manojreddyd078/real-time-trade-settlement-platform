@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from config import create_session
 from schema import TRADE_FIELDS, TRADE_INPUT_SCHEMA
-from transformations.trades import prepare_trades
+from transformations.trades import prepare_trades, validate_transformed_output
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -34,11 +34,14 @@ def run():
     processed = None
     try:
         processed = prepare_trades(read_trades(spark, args.input)).cache()
-        accepted = processed.filter('valid')
+        accepted = validate_transformed_output(processed)
         rejected = processed.filter('NOT valid')
         counts = {'total': processed.count(), 'accepted': accepted.count(), 'rejected': rejected.count()}
         args.output_dir.mkdir(parents=True, exist_ok=True)
-        write_rows(accepted.select(*TRADE_FIELDS, 'notional'), args.output_dir / 'accepted.jsonl')
+        write_rows(accepted.select(*TRADE_FIELDS, 'notional', 'settlement_amount',
+                                    'settlement_currency', 'days_to_settlement',
+                                    'same_day_settlement', 'settlement_class'),
+                   args.output_dir / 'accepted.jsonl')
         write_rows(rejected, args.output_dir / 'rejected.jsonl')
         (args.output_dir / 'summary.json').write_text(json.dumps(counts, indent=2) + '\n', encoding='utf-8')
         print(json.dumps(counts, indent=2))
