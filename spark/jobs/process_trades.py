@@ -5,6 +5,7 @@ from pathlib import Path
 from config import create_session
 from schema import TRADE_FIELDS, TRADE_INPUT_SCHEMA
 from transformations.trades import prepare_trades, validate_transformed_output
+from enrichment.reference_data import enrich_trades, validate_enriched_output
 
 ROOT = Path(__file__).resolve().parents[1]
 
