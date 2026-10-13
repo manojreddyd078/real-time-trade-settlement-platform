@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import MetricCard from './components/MetricCard.jsx'
 import TradeTable from './components/TradeTable.jsx'
 import TradeSubmissionPage from './pages/TradeSubmissionPage.jsx'
 import TradeDetailsPage from './pages/TradeDetailsPage.jsx'
 import SettlementStatusPage from './pages/SettlementStatusPage.jsx'
 import FailedTradesPage from './pages/FailedTradesPage.jsx'
 import TransactionTracePage from './pages/TransactionTracePage.jsx'
+import DashboardPage from './pages/DashboardPage.jsx'
 import { getBackendStatus } from './services/api.js'
 import { TradeStatus, TradeType } from './types/trade.js'
 
@@ -17,7 +17,7 @@ const sampleTrades = [
 ]
 
 function Overview({ onCapture, onSelectTrade }) {
-  return <><section className="intro"><div><h2>Today’s settlement overview</h2><p>Monitor trade flow, settlement readiness, and exceptions.</p></div><button type="button" onClick={onCapture}>+ Capture trade</button></section><section className="metrics" aria-label="Settlement metrics"><MetricCard label="Trades today" value="1,284" detail="↑ 8.2% from yesterday" tone="positive" /><MetricCard label="Pending settlement" value="426" detail="$184.6M gross value" /><MetricCard label="Settled today" value="851" detail="66.3% completion" tone="positive" /><MetricCard label="Exceptions" value="7" detail="3 require attention" tone="warning" /></section><section className="panel" id="trades"><div className="panel-heading"><div><h2>Recent trades</h2><p>Latest activity across the settlement lifecycle</p></div><button className="link-button" type="button" onClick={onCapture}>Submit trade →</button></div><TradeTable trades={sampleTrades} onSelect={onSelectTrade} /></section></>
+  return <><section className="intro"><div><h2>Today’s settlement overview</h2><p>Monitor trade flow, settlement readiness, and exceptions.</p></div><button type="button" onClick={onCapture}>+ Capture trade</button></section><DashboardPage><section className="panel" id="trades"><div className="panel-heading"><div><h2>Recent trades</h2><p>Latest activity across the settlement lifecycle</p></div><button className="link-button" type="button" onClick={onCapture}>Submit trade →</button></div><TradeTable trades={sampleTrades} onSelect={onSelectTrade} /></section></DashboardPage></>
 }
 
 function App() {
