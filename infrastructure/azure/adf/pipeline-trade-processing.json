@@ -1,0 +1,34 @@
+{
+  "name": "pl_trade_blob_to_sql",
+  "properties": {
+    "parameters": {
+      "inputFile": { "type": "string" },
+      "outputPath": { "type": "string", "defaultValue": "processed-trades" }
+    },
+    "activities": [
+      {
+        "name": "ProcessTradesWithSpark",
+        "type": "DatabricksNotebook",
+        "typeProperties": {
+          "notebookPath": "/Shared/trade-settlement/process_trades",
+          "baseParameters": {
+            "input_path": "@concat('abfss://input-trades@', pipeline().globalParameters.storageAccountName, '.dfs.core.windows.net/', pipeline().parameters.inputFile)",
+            "output_path": "@concat('abfss://', pipeline().parameters.outputPath, '@', pipeline().globalParameters.storageAccountName, '.dfs.core.windows.net/')"
+          }
+        },
+        "linkedServiceName": { "referenceName": "ls_azure_databricks", "type": "LinkedServiceReference" }
+      },
+      {
+        "name": "LoadProcessedTradesToAzureSql",
+        "type": "Copy",
+        "dependsOn": [{ "activity": "ProcessTradesWithSpark", "dependencyConditions": ["Succeeded"] }],
+        "inputs": [{ "referenceName": "ds_processed_trade_blob", "type": "DatasetReference", "parameters": { "path": "@pipeline().parameters.outputPath" } }],
+        "outputs": [{ "referenceName": "ds_trade_settlement_sql", "type": "DatasetReference" }],
+        "typeProperties": {
+          "source": { "type": "JsonSource", "filePattern": "setOfObjects" },
+          "sink": { "type": "AzureSqlSink", "writeBehavior": "insert", "tableOption": "autoCreate" }
+        }
+      }
+    ]
+  }
+}

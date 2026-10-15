@@ -25,3 +25,13 @@ For Spring Boot, set `SPRING_PROFILES_ACTIVE=azure` and provide
 which create the trade, settlement-status, audit, idempotency, and reference
 tables. Verify connectivity with `GET /actuator/health` and inspect the Flyway
 startup logs; no production credentials belong in source control.
+
+## Event-driven processing
+
+The companion workflow files in `adf/` and `function/` connect Blob events to
+the processing pipeline. Deploy the Function first, configure its Blob trigger,
+then import `adf/pipeline-trade-processing.json` and create the three linked
+services described in `adf/README.md`. Test with a non-sensitive sample file in
+`input-trades`; confirm a successful Spark activity, an output file in the
+processed container, and inserted rows in Azure SQL before enabling production
+event triggers.
