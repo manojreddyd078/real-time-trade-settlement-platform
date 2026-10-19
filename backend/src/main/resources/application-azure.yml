@@ -24,3 +24,5 @@ app:
 logging:
   level:
     com.tradesettlement: INFO
+  structured:
+    format: json
