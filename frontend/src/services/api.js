@@ -1,12 +1,24 @@
-export async function getBackendStatus() {
+import { getAccessToken, handleUnauthorized } from './auth.js'
+
+async function request(path, options = {}) {
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-  const response = await fetch(`${apiBaseUrl}/api/status`)
+  const token = getAccessToken()
+  const headers = { Accept: 'application/json', ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) }
+  if (token) headers.Authorization = `Bearer ${token}`
+  const response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers })
+  handleUnauthorized(response)
+  const body = await response.json().catch(() => null)
+  return { response, body }
+}
+
+export async function getBackendStatus() {
+  const { response, body } = await request('/api/status')
 
   if (!response.ok) {
     throw new Error(`Backend returned HTTP ${response.status}`)
   }
 
-  return response.json()
+  return body
 }
 
 export class ApiError extends Error {
@@ -21,14 +33,11 @@ export class ApiError extends Error {
 }
 
 export async function submitTrade(trade) {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-  const response = await fetch(`${apiBaseUrl}/api/trades`, {
+  const { response, body } = await request('/api/trades', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(trade)
   })
-  const body = await response.json().catch(() => null)
-
   if (!response.ok) {
     throw new ApiError(body?.message || `Trade submission failed with HTTP ${response.status}`, {
       code: body?.code,
@@ -42,9 +51,7 @@ export async function submitTrade(trade) {
 }
 
 export async function getTrade(tradeId) {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-  const response = await fetch(`${apiBaseUrl}/api/trades/${tradeId}`)
-  const body = await response.json().catch(() => null)
+  const { response, body } = await request(`/api/trades/${encodeURIComponent(tradeId)}`)
 
   if (!response.ok) {
     throw new ApiError(body?.message || `Trade status lookup failed with HTTP ${response.status}`, {
@@ -56,41 +63,31 @@ export async function getTrade(tradeId) {
 }
 
 export async function getTradeDetails(tradeId) {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-  const response = await fetch(`${apiBaseUrl}/api/trades/${tradeId}/details`)
-  const body = await response.json().catch(() => null)
+  const { response, body } = await request(`/api/trades/${encodeURIComponent(tradeId)}/details`)
   if (!response.ok) throw new ApiError(body?.message || `Trade details lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
   return body
 }
 
 export async function getTradeStatusHistory(tradeId) {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-  const response = await fetch(`${apiBaseUrl}/api/trades/${tradeId}/status`)
-  const body = await response.json().catch(() => null)
+  const { response, body } = await request(`/api/trades/${encodeURIComponent(tradeId)}/status`)
   if (!response.ok) throw new ApiError(body?.message || `Trade status history lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
   return body
 }
 
 export async function getSettlements() {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-  const response = await fetch(`${apiBaseUrl}/api/settlements`)
-  const body = await response.json().catch(() => null)
+  const { response, body } = await request('/api/settlements')
   if (!response.ok) throw new ApiError(body?.message || `Settlement status lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
   return body
 }
 
 export async function getFailedTrades() {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-  const response = await fetch(`${apiBaseUrl}/api/failed-trades`)
-  const body = await response.json().catch(() => null)
+  const { response, body } = await request('/api/failed-trades')
   if (!response.ok) throw new ApiError(body?.message || `Failed trades lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
   return body
 }
 
 export async function getTransactionTrace(tradeId) {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-  const response = await fetch(`${apiBaseUrl}/api/traces/${encodeURIComponent(tradeId)}`)
-  const body = await response.json().catch(() => null)
+  const { response, body } = await request(`/api/traces/${encodeURIComponent(tradeId)}`)
   if (!response.ok) throw new ApiError(body?.message || `Transaction trace lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
   return body
 }

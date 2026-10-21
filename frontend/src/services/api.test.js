@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiError, getFailedTrades, submitTrade } from './api.js'
+import { ApiError, getBackendStatus, getFailedTrades, submitTrade } from './api.js'
+import { setAccessToken } from './auth.js'
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -29,5 +30,18 @@ describe('API failure handling', () => {
       message: 'Failed trades lookup failed with HTTP 503',
       status: 503
     }))
+  })
+
+  it('adds bearer authentication and clears the session on unauthorized responses', async () => {
+    setAccessToken('access-token')
+    const expired = vi.fn()
+    window.addEventListener('auth:expired', expired)
+    const fetchMock = vi.fn().mockResolvedValue(new Response('{}', { status: 401 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(getBackendStatus()).rejects.toThrow('HTTP 401')
+    expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe('Bearer access-token')
+    expect(expired).toHaveBeenCalledOnce()
+    window.removeEventListener('auth:expired', expired)
   })
 })
