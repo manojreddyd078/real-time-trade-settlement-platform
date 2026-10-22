@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ApiError, getBackendStatus, getFailedTrades, submitTrade } from './api.js'
-import { setAccessToken } from './auth.js'
+import { clearSession, setAccessToken } from './auth.js'
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => { vi.unstubAllGlobals(); clearSession() })
 
 describe('API failure handling', () => {
   it('preserves structured validation errors from trade submission', async () => {

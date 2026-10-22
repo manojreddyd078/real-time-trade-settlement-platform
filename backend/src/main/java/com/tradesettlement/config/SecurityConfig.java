@@ -6,12 +6,20 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+    @Value("${app.security.enabled:true}")
+    private boolean securityEnabled;
+
     @Bean
     SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
+        if (!securityEnabled) {
+            http.csrf().disable().cors().and().authorizeRequests().anyRequest().permitAll();
+            return http.build();
+        }
         http.csrf().disable()
             .cors().and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
