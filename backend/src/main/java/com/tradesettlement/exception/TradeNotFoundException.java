@@ -7,4 +7,8 @@ public class TradeNotFoundException extends RuntimeException {
     public TradeNotFoundException(UUID tradeId) {
         super("Trade was not found: " + tradeId);
     }
+
+    public TradeNotFoundException(String identifier) {
+        super("Trade was not found: " + identifier);
+    }
 }

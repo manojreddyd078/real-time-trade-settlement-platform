@@ -34,4 +34,15 @@ class TransactionTraceControllerTest {
                 .andExpect(jsonPath("$.correlationIds[0]").value("corr-1"))
                 .andExpect(jsonPath("$.timeline").isArray());
     }
+
+    @Test
+    void acceptsTradeReferenceInAdditionToUuid() throws Exception {
+        UUID tradeId = UUID.randomUUID(); Trade trade = new Trade(); ReflectionTestUtils.setField(trade, "id", tradeId);
+        trade.setTradeReference("TRD-TRACE-REFERENCE"); trade.setStatus(TradeStatus.RECEIVED);
+        when(traces.trace("TRD-TRACE-REFERENCE")).thenReturn(new TransactionTraceResponse(trade,
+                Collections.emptyList(), Collections.emptyList(), null, null, null, Collections.emptyList()));
+        mockMvc.perform(get("/api/traces/TRD-TRACE-REFERENCE"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tradeReference").value("TRD-TRACE-REFERENCE"));
+    }
 }

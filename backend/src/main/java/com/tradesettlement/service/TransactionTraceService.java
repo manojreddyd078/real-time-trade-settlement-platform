@@ -45,6 +45,17 @@ public class TransactionTraceService {
     }
 
     @Transactional(readOnly = true)
+    public TransactionTraceResponse trace(String identifier) {
+        try {
+            return trace(UUID.fromString(identifier));
+        } catch (IllegalArgumentException ignored) {
+            Trade trade = trades.findByTradeReference(identifier)
+                    .orElseThrow(() -> new TradeNotFoundException(identifier));
+            return trace(trade.getId());
+        }
+    }
+
+    @Transactional(readOnly = true)
     public TransactionTraceResponse trace(UUID tradeId) {
         Trade trade = trades.findById(tradeId).orElseThrow(() -> new TradeNotFoundException(tradeId));
         MDC.put("tradeId", tradeId.toString());

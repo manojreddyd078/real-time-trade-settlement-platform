@@ -34,11 +34,6 @@ spring:
     listener:
       ack-mode: record
       missing-topics-fatal: false
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${OIDC_ISSUER_URI:https://login.microsoftonline.com/${AZURE_TENANT_ID}/v2.0}
 
 server:
   port: 8080

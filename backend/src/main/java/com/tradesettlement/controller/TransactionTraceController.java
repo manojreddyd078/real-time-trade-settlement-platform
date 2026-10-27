@@ -1,6 +1,5 @@
 package com.tradesettlement.controller;
 
-import java.util.UUID;
 import com.tradesettlement.dto.TransactionTraceResponse;
 import com.tradesettlement.service.TransactionTraceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,5 +18,5 @@ public class TransactionTraceController {
 
     @GetMapping("/{tradeId}")
     @Operation(summary = "Trace a transaction", description = "Returns an ordered timeline of status, event, retry, DLQ, and settlement activity")
-    public TransactionTraceResponse trace(@PathVariable UUID tradeId) { return traces.trace(tradeId); }
+    public TransactionTraceResponse trace(@PathVariable String tradeId) { return traces.trace(tradeId); }
 }

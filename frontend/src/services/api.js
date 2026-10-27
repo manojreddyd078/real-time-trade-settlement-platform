@@ -46,7 +46,7 @@ export async function submitTrade(trade) {
     body: JSON.stringify(trade)
   })
   if (!response.ok) {
-    throw new ApiError(body?.message || `Trade submission failed with HTTP ${response.status}`, {
+    throw new ApiError(apiMessage('Trade submission failed', response, body), {
       code: body?.code,
       fieldErrors: body?.fieldErrors,
       requestId: body?.requestId,
@@ -95,6 +95,6 @@ export async function getFailedTrades() {
 
 export async function getTransactionTrace(tradeId) {
   const { response, body } = await request(`/api/traces/${encodeURIComponent(tradeId)}`)
-  if (!response.ok) throw new ApiError(body?.message || `Transaction trace lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
+  if (!response.ok) throw new ApiError(apiMessage('Transaction trace lookup failed', response, body), { code: body?.code, requestId: body?.requestId, status: response.status })
   return body
 }
