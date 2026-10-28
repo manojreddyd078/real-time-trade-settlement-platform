@@ -6,18 +6,28 @@ function TransactionTracePage() {
   const [tradeId, setTradeId] = useState('')
   const [state, setState] = useState({ status: 'idle', trace: null })
 
+  const normalizeIdentifier = (value) => {
+    const text = value.trim().replace(/^['"]|['"]$/g, '')
+    try {
+      const parsed = JSON.parse(text)
+      return parsed.tradeId || parsed.tradeReference || text
+    } catch {
+      return text
+    }
+  }
+
   const submit = async (event) => {
     event.preventDefault()
     if (!tradeId.trim()) return
     setState((current) => ({ ...current, status: 'loading', error: null }))
-    try { setState({ status: 'success', trace: await getTransactionTrace(tradeId.trim()), error: null }) }
+    try { setState({ status: 'success', trace: await getTransactionTrace(normalizeIdentifier(tradeId)), error: null }) }
     catch (error) { setState({ status: 'error', trace: null, error: error.message }) }
   }
 
   const trace = state.trace
   return <section className="trace-page">
     <div className="intro"><div><p className="eyebrow">End-to-end observability</p><h2>Transaction trace</h2><p>Follow status, event, retry, settlement, and dead-letter activity in timestamp order.</p></div></div>
-    <form className="trace-search" onSubmit={submit}><label><span>Trade ID</span><input value={tradeId} onChange={(event) => setTradeId(event.target.value)} placeholder="Enter trade UUID" aria-label="Trade ID" /></label><button type="submit" disabled={state.status === 'loading' || !tradeId.trim()}>{state.status === 'loading' ? 'Tracing…' : 'Trace transaction'}</button></form>
+    <form className="trace-search" onSubmit={submit}><label><span>Trade ID or reference</span><input value={tradeId} onChange={(event) => setTradeId(event.target.value)} placeholder="UUID, trade reference, or saved JSON" aria-label="Trade ID or reference" /></label><button type="submit" disabled={state.status === 'loading' || !tradeId.trim()}>{state.status === 'loading' ? 'Tracing…' : 'Trace transaction'}</button></form>
     {state.error && <div className="notice notice--error" role="alert">{state.error}</div>}
     {state.status === 'idle' && <div className="empty-state">Enter a generated trade ID to load its complete transaction trace.</div>}
     {trace && <>

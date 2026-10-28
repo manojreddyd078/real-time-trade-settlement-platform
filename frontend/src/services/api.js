@@ -5,7 +5,12 @@ async function request(path, options = {}) {
   const token = getAccessToken()
   const headers = { Accept: 'application/json', ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) }
   if (token) headers.Authorization = `Bearer ${token}`
-  const response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers })
+  let response
+  try {
+    response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers })
+  } catch (error) {
+    throw new ApiError('Backend service could not be reached. Start Spring Boot on http://localhost:8080 and verify the frontend API URL.', { cause: error })
+  }
   handleUnauthorized(response)
   const body = await response.json().catch(() => null)
   return { response, body }
@@ -91,6 +96,12 @@ export async function getFailedTrades() {
   const { response, body } = await request('/api/failed-trades')
   if (!response.ok) throw new ApiError(apiMessage('Failed trades lookup failed', response, body), { code: body?.code, requestId: body?.requestId, status: response.status })
   return body
+}
+
+export async function getReferenceData() {
+  const [instruments, counterparties] = await Promise.all([request('/api/reference-data/instruments'), request('/api/reference-data/counterparties')])
+  for (const result of [instruments, counterparties]) if (!result.response.ok) throw new ApiError(apiMessage('Reference data lookup failed', result.response, result.body), { status: result.response.status })
+  return { instruments: instruments.body || [], counterparties: counterparties.body || [] }
 }
 
 export async function getTransactionTrace(tradeId) {
