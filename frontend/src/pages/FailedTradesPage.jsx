@@ -20,9 +20,9 @@ function FailedTradesPage() {
     return () => window.clearInterval(timer)
   }, [refresh])
 
-  return <section className="failures-page">
+  return <section className="failures-page" aria-busy={state.loading}>
     <div className="intro"><div><p className="eyebrow">Exception management</p><h2>Failed trades</h2><p>Business failures and permanently failed events routed to the dead-letter queue.</p></div><button type="button" onClick={refresh} disabled={state.loading}>{state.loading ? 'Refreshing…' : 'Refresh'}</button></div>
-    {state.error && <div className="notice notice--error" role="alert">Unable to load failed trades: {state.error}</div>}
+    {state.error && <div className="notice notice--error" role="alert" aria-live="assertive">Unable to load failed trades: {state.error}</div>}
     {!state.loading && !state.error && !state.failures.length && <div className="empty-state">No failed trades or dead-letter events require attention.</div>}
     <div className="failure-list">{state.failures.map((failure) => <article className="failure-card" key={failure.id}>
       <div className="failure-card__heading"><div><span>{failure.tradeReference || 'Unidentified trade event'}</span><small>{failure.eventType ? formatTradeStatus(failure.eventType) : 'Business processing failure'}</small></div><div className="failure-badges"><span className={`dlq-status dlq-status--${failure.dlqStatus.toLowerCase()}`}>DLQ: {formatTradeStatus(failure.dlqStatus)}</span>{failure.tradeStatus && <span className={`trade-status trade-status--${failure.tradeStatus.toLowerCase()}`}>{formatTradeStatus(failure.tradeStatus)}</span>}</div></div>
