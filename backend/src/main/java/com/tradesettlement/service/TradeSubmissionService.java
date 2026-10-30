@@ -7,6 +7,7 @@ import com.tradesettlement.dto.TradeSubmissionResponse;
 import com.tradesettlement.entity.Trade;
 import com.tradesettlement.entity.TradeStatus;
 import com.tradesettlement.exception.DuplicateTradeException;
+import com.tradesettlement.exception.TradeNotFoundException;
 import com.tradesettlement.kafka.TradeEvent;
 import com.tradesettlement.repository.TradeRepository;
 import org.slf4j.Logger;
@@ -74,12 +75,37 @@ public class TradeSubmissionService {
         }
     }
 
+    @Transactional
+    public TradeSubmissionResponse update(UUID tradeId, TradeSubmissionRequest request) {
+        Trade trade = tradeRepository.findById(tradeId)
+                .orElseThrow(() -> new TradeNotFoundException(tradeId));
+        String businessKey = TradeBusinessKey.from(request);
+        tradeRepository.findByTradeReference(request.getTradeReference()).ifPresent(existing -> {
+            if (!existing.getId().equals(tradeId)) {
+                throw new DuplicateTradeException(request.getTradeReference());
+            }
+        });
+        tradeRepository.findByBusinessKey(businessKey).ifPresent(existing -> {
+            if (!existing.getId().equals(tradeId)) {
+                throw new DuplicateTradeException(request.getTradeReference(), "A trade with the same business details already exists");
+            }
+        });
+        copyMutableFields(trade, request);
+        trade.setBusinessKey(businessKey);
+        return TradeSubmissionResponse.from(tradeRepository.saveAndFlush(trade));
+    }
+
     private Trade toEntity(TradeSubmissionRequest request) {
         Trade trade = new Trade();
+        copyMutableFields(trade, request);
+        trade.setStatus(TradeStatus.RECEIVED);
+        return trade;
+    }
+
+    private void copyMutableFields(Trade trade, TradeSubmissionRequest request) {
         trade.setTradeReference(request.getTradeReference());
         trade.setExternalReference(request.getExternalReference());
         trade.setTradeType(request.getTradeType());
-        trade.setStatus(TradeStatus.RECEIVED);
         trade.setInstrumentId(request.getInstrumentId());
         trade.setBuyerCounterpartyId(request.getBuyerCounterpartyId());
         trade.setSellerCounterpartyId(request.getSellerCounterpartyId());
@@ -88,6 +114,5 @@ public class TradeSubmissionService {
         trade.setCurrencyCode(request.getCurrencyCode());
         trade.setTradeDate(request.getTradeDate());
         trade.setSettlementDate(request.getSettlementDate());
-        return trade;
     }
 }

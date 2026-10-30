@@ -62,6 +62,15 @@ export async function submitTrade(trade) {
   return body
 }
 
+export async function updateTrade(tradeId, trade) {
+  const { response, body } = await request(`/api/trades/${encodeURIComponent(tradeId)}`, {
+    method: 'PUT',
+    body: JSON.stringify(trade)
+  })
+  if (!response.ok) throw new ApiError(apiMessage('Trade update failed', response, body), { code: body?.code, fieldErrors: body?.fieldErrors, requestId: body?.requestId, status: response.status })
+  return body
+}
+
 export async function getTrade(tradeId) {
   const { response, body } = await request(`/api/trades/${encodeURIComponent(tradeId)}`)
 

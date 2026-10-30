@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,6 +51,12 @@ public class TradeController {
     public ResponseEntity<TradeSubmissionResponse> submit(@Valid @RequestBody TradeSubmissionRequest request) {
         TradeSubmissionResponse response = tradeSubmissionService.submit(request);
         return ResponseEntity.created(URI.create("/api/trades/" + response.getId())).body(response);
+    }
+
+    @PutMapping("/{tradeId}")
+    @Operation(summary = "Update a trade", description = "Updates captured trade fields and flushes the change to the database")
+    public TradeSubmissionResponse update(@PathVariable UUID tradeId, @Valid @RequestBody TradeSubmissionRequest request) {
+        return tradeSubmissionService.update(tradeId, request);
     }
 
     @GetMapping("/{tradeId}")
