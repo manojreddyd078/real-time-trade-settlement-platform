@@ -71,7 +71,7 @@ flowchart LR
   A --> DB
 ```
 
-Key endpoints include `POST /api/trades`, `GET /api/trades/{id}` with
+Key endpoints include `POST /api/trades`, `PUT /api/trades/{id}`, and `GET /api/trades/{id}` with
 `/details` and `/status`, `GET /api/settlements`, `/api/failed-trades`, and
 `/api/traces/{id}`. Health checks are available at `/api/status` and
 `/actuator/health`. Production API requests require bearer authentication;

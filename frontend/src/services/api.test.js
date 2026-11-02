@@ -27,7 +27,7 @@ describe('API failure handling', () => {
 
     await expect(getFailedTrades()).rejects.toEqual(expect.objectContaining({
       constructor: ApiError,
-      message: 'Failed trades lookup failed with HTTP 503',
+      message: 'Backend service is unavailable. Check that Spring Boot, the database, and Kafka are running, then retry.',
       status: 503
     }))
   })

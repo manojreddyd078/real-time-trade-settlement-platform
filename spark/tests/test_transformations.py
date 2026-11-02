@@ -2,6 +2,9 @@ import unittest
 from decimal import Decimal
 import os
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from config import create_session
 from transformations.trades import (apply_business_rules, derive_settlement_fields,
                                     normalize_trade_fields, validate_transformed_output)
