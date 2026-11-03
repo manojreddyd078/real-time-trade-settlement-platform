@@ -3,11 +3,17 @@ import { getTradeDetails } from '../services/api.js'
 import { formatTradeStatus, SettlementEligibilityStatus } from '../types/trade.js'
 import StatusTimeline from '../components/StatusTimeline.jsx'
 
-function Item({ label, value }) { return <div className="detail-item"><span>{label}</span><strong>{value || 'Pending enrichment'}</strong></div> }
+function Item({ label, value }) { return <div className="detail-item"><span>{label}</span><strong>{value ?? 'Pending enrichment'}</strong></div> }
 
 function TradeDetailsPage({ tradeId, fallback, onBack }) {
   const [state, setState] = useState({ loading: true, trade: fallback })
-  useEffect(() => { getTradeDetails(tradeId).then((trade) => setState({ loading: false, trade })).catch((error) => setState({ loading: false, trade: fallback, error: error.message })) }, [tradeId, fallback])
+  useEffect(() => {
+    let active = true
+    getTradeDetails(tradeId)
+      .then((trade) => { if (active) setState({ loading: false, trade }) })
+      .catch((error) => { if (active) setState({ loading: false, trade: fallback, error: error.message }) })
+    return () => { active = false }
+  }, [tradeId, fallback])
   const trade = state.trade
   if (!trade) return <section className="submission-page"><button className="back-link" onClick={onBack}>← Back to overview</button><div className="notice notice--error">{state.error || 'Trade details are unavailable.'}</div></section>
   const eligibility = trade.eligibilityStatus || SettlementEligibilityStatus.PENDING
