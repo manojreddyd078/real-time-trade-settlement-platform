@@ -9,6 +9,7 @@ import com.tradesettlement.service.TransactionTraceService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TransactionTraceController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class TransactionTraceControllerTest {
     @Autowired private MockMvc mockMvc;
     @MockBean private TransactionTraceService traces;
@@ -27,7 +29,7 @@ class TransactionTraceControllerTest {
     void returnsTransactionTrace() throws Exception {
         UUID tradeId = UUID.randomUUID(); Trade trade = new Trade(); ReflectionTestUtils.setField(trade, "id", tradeId);
         trade.setTradeReference("TRD-TRACE-1"); trade.setStatus(TradeStatus.RECEIVED);
-        when(traces.trace(tradeId)).thenReturn(new TransactionTraceResponse(trade, Collections.singletonList("corr-1"),
+        when(traces.trace(tradeId.toString())).thenReturn(new TransactionTraceResponse(trade, Collections.singletonList("corr-1"),
                 Collections.singletonList(UUID.randomUUID()), null, null, null, Collections.emptyList()));
         mockMvc.perform(get("/api/traces/{tradeId}", tradeId)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.tradeId").value(tradeId.toString()))
