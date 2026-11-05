@@ -2,6 +2,7 @@ package com.tradesettlement.exception;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -74,7 +75,14 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<ApiErrorResponse> response(HttpStatus status, String code, String message,
                                                        HttpServletRequest request, Map<String, String> fieldErrors) {
-        ApiErrorResponse body = new ApiErrorResponse(status.value(), code, message, request.getRequestURI(), MDC.get("requestId"), fieldErrors);
+        String requestId = MDC.get("requestId");
+        if (requestId == null || requestId.isBlank()) {
+            requestId = request.getHeader("X-Request-Id");
+        }
+        if (requestId == null || requestId.isBlank()) {
+            requestId = UUID.randomUUID().toString();
+        }
+        ApiErrorResponse body = new ApiErrorResponse(status.value(), code, message, request.getRequestURI(), requestId, fieldErrors);
         return ResponseEntity.status(status).body(body);
     }
 }

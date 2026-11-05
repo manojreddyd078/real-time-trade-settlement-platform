@@ -23,6 +23,15 @@ function apiMessage(fallback, response, body) {
   return body?.message || `${fallback} (HTTP ${response.status})`
 }
 
+function apiError(fallback, response, body, includeFields = false) {
+  return new ApiError(apiMessage(fallback, response, body), {
+    code: body?.code,
+    fieldErrors: includeFields ? body?.fieldErrors : undefined,
+    requestId: body?.requestId,
+    status: response.status
+  })
+}
+
 export async function getBackendStatus() {
   const { response, body } = await request('/api/status')
 
@@ -51,12 +60,7 @@ export async function submitTrade(trade) {
     body: JSON.stringify(trade)
   })
   if (!response.ok) {
-    throw new ApiError(apiMessage('Trade submission failed', response, body), {
-      code: body?.code,
-      fieldErrors: body?.fieldErrors,
-      requestId: body?.requestId,
-      status: response.status
-    })
+    throw apiError('Trade submission failed', response, body, true)
   }
 
   return body
@@ -67,7 +71,7 @@ export async function updateTrade(tradeId, trade) {
     method: 'PUT',
     body: JSON.stringify(trade)
   })
-  if (!response.ok) throw new ApiError(apiMessage('Trade update failed', response, body), { code: body?.code, fieldErrors: body?.fieldErrors, requestId: body?.requestId, status: response.status })
+  if (!response.ok) throw apiError('Trade update failed', response, body, true)
   return body
 }
 
@@ -75,9 +79,7 @@ export async function getTrade(tradeId) {
   const { response, body } = await request(`/api/trades/${encodeURIComponent(tradeId)}`)
 
   if (!response.ok) {
-    throw new ApiError(body?.message || `Trade status lookup failed with HTTP ${response.status}`, {
-      code: body?.code, requestId: body?.requestId, status: response.status
-    })
+    throw apiError('Trade status lookup failed', response, body)
   }
 
   return body
@@ -85,36 +87,36 @@ export async function getTrade(tradeId) {
 
 export async function getTradeDetails(tradeId) {
   const { response, body } = await request(`/api/trades/${encodeURIComponent(tradeId)}/details`)
-  if (!response.ok) throw new ApiError(body?.message || `Trade details lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
+  if (!response.ok) throw apiError('Trade details lookup failed', response, body)
   return body
 }
 
 export async function getTradeStatusHistory(tradeId) {
   const { response, body } = await request(`/api/trades/${encodeURIComponent(tradeId)}/status`)
-  if (!response.ok) throw new ApiError(body?.message || `Trade status history lookup failed with HTTP ${response.status}`, { code: body?.code, requestId: body?.requestId, status: response.status })
+  if (!response.ok) throw apiError('Trade status history lookup failed', response, body)
   return body
 }
 
 export async function getSettlements() {
   const { response, body } = await request('/api/settlements')
-  if (!response.ok) throw new ApiError(apiMessage('Settlement status lookup failed', response, body), { code: body?.code, requestId: body?.requestId, status: response.status })
+  if (!response.ok) throw apiError('Settlement status lookup failed', response, body)
   return body
 }
 
 export async function getFailedTrades() {
   const { response, body } = await request('/api/failed-trades')
-  if (!response.ok) throw new ApiError(apiMessage('Failed trades lookup failed', response, body), { code: body?.code, requestId: body?.requestId, status: response.status })
+  if (!response.ok) throw apiError('Failed trades lookup failed', response, body)
   return body
 }
 
 export async function getReferenceData() {
   const [instruments, counterparties] = await Promise.all([request('/api/reference-data/instruments'), request('/api/reference-data/counterparties')])
-  for (const result of [instruments, counterparties]) if (!result.response.ok) throw new ApiError(apiMessage('Reference data lookup failed', result.response, result.body), { status: result.response.status })
+  for (const result of [instruments, counterparties]) if (!result.response.ok) throw apiError('Reference data lookup failed', result.response, result.body)
   return { instruments: instruments.body || [], counterparties: counterparties.body || [] }
 }
 
 export async function getTransactionTrace(tradeId) {
   const { response, body } = await request(`/api/traces/${encodeURIComponent(tradeId)}`)
-  if (!response.ok) throw new ApiError(apiMessage('Transaction trace lookup failed', response, body), { code: body?.code, requestId: body?.requestId, status: response.status })
+  if (!response.ok) throw apiError('Transaction trace lookup failed', response, body)
   return body
 }
