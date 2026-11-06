@@ -12,3 +12,7 @@ spring:
 logging:
   level:
     com.tradesettlement: INFO
+
+app:
+  security:
+    enabled: ${APP_SECURITY_ENABLED:false}
